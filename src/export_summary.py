@@ -12,9 +12,9 @@ from openpyxl.utils import get_column_letter
 # ==========================================================
 THRESHOLD = {
     'IL_MIN': -20.0,  # IL이 -20dB보다 낮으면 에러 (너무 큰 손실)
-    'ER_MIN': 10.0,   # ER이 10dB보다 낮으면 아웃라이어
+    'ER_MIN': 10.0,  # ER이 10dB보다 낮으면 아웃라이어
     'VPIL_MIN': 0.2,  # VpiL이 0.2Vcm 미만이면 에러
-    'VPIL_MAX': 3.0   # VpiL이 3.0Vcm 초과하면 에러
+    'VPIL_MAX': 3.0  # VpiL이 3.0Vcm 초과하면 에러
 }
 
 zip_path = "../dat/HY202103.zip"
@@ -67,6 +67,9 @@ for d in parse_wafer_data(zip_path, target_wafers):
     wafer, band, c, r = d['wafer_id'], d['band'], d['die_c'], d['die_r']
     radius = np.sqrt(c ** 2 + r ** 2)
 
+    # [중요] 경로 매칭을 위해 날짜 정보 가져오기
+    date_str = d.get('date', 'Unknown_Date')
+
     # --- 0. Baseline (Ref) Fitting ---
     m = (d['ref_data']['wl'] >= d['wl_min']) & (d['ref_data']['wl'] <= d['wl_max'])
     v_ref_wl, v_ref_il = d['ref_data']['wl'][m], d['ref_data']['il'][m]
@@ -104,7 +107,7 @@ for d in parse_wafer_data(zip_path, target_wafers):
         max_er = max(max_er, er)
     er_val = max_er if max_er > 0 else np.nan
 
-    # --- 3. VpiL Calculation (기준 코드 완벽 동기화) ---
+    # --- 3. VpiL Calculation ---
     vpil_val = np.nan
     z_data = next((b for b in d['bias_data_list'] if b['bias'] == 0.0), None)
 
@@ -137,22 +140,19 @@ for d in parse_wafer_data(zip_path, target_wafers):
             if len(volts) >= 5:
                 volts, p_pi = np.array(volts), np.array(p_pi)
 
-                # --- [핵심 반영] 제공된 코드의 0V 기준 VpiL 추출 로직 ---
                 fit = np.poly1d(np.polyfit(volts, p_pi, 2))
                 derivative = np.polyder(fit)
 
-                # 0V에서의 기울기 추출
                 slope_at_0 = np.abs(derivative(0.0))
-                slope_at_0 = max(slope_at_0, 1e-5)  # 0으로 나누기 방지
+                slope_at_0 = max(slope_at_0, 1e-5)
                 vpil_0V = L_length / slope_at_0
 
-                # 유효한 범위 필터링 (0V VpiL이 정상이면 저장)
                 if 0.1 <= vpil_0V <= 10.0:
                     vpil_val = vpil_0V
 
-    # 리스트에 계산된 값 추가
+    # 리스트에 계산된 값 추가 (Date 항목 추가)
     summary_list.append({
-        'Wafer': wafer, 'Band': band, 'Column': c, 'Row': r, 'Radius': radius,
+        'Wafer': wafer, 'Band': band, 'Date': date_str, 'Column': c, 'Row': r, 'Radius': radius,
         'IL_dB': il_val, 'ER_dB': er_val, 'VpiL_Vcm': vpil_val
     })
 
@@ -163,14 +163,16 @@ for d in parse_wafer_data(zip_path, target_wafers):
 # --- DataFrame 변환 및 상태 체크 ---
 df = pd.DataFrame(summary_list)
 
-# 중복 데이터(동일 위치 스윕 등) 평균 처리. 숫자 데이터에만 적용되도록 옵션 추가
-# 중복 데이터 중 VpiL이 더 낮게 나온(튀지 않은) 측정값 선택
-df = df.groupby(['Wafer', 'Band', 'Column', 'Row', 'Radius'], as_index=False).min(numeric_only=True)
+# 중복 데이터 최소화 처리 (Date 항목도 보존하기 위해 groupby 대상에 포함)
+df = df.groupby(['Wafer', 'Band', 'Date', 'Column', 'Row', 'Radius'], as_index=False).min(numeric_only=True)
 
-# 정상/이상 여부 판단 및 이유 부여 (zip을 통해 최적화 처리)
+# 정상/이상 여부 판단
 df['Status'], df['Reason'] = zip(*df.apply(check_status, axis=1))
 
-print("엑셀 파일을 저장하고 서식을 적용하는 중...")
+# 링크를 적용할 'Folder_Link' 가상 컬럼 추가 (엑셀에서 수식으로 변환 예정)
+df['Folder_Link'] = "Click"
+
+print("엑셀 파일을 저장하고 하이퍼링크 서식을 적용하는 중...")
 
 # --- 엑셀 저장 및 서식 적용 ---
 with pd.ExcelWriter(save_path, engine='openpyxl') as writer:
@@ -180,38 +182,62 @@ with pd.ExcelWriter(save_path, engine='openpyxl') as writer:
     header_fill = PatternFill(start_color='1F4E78', end_color='1F4E78', fill_type='solid')
     header_font = Font(color='FFFFFF', bold=True)
     error_fill = PatternFill(start_color='FFC7CE', end_color='FFC7CE', fill_type='solid')
-    border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+
+    # 하이퍼링크용 폰트 스타일 (파란색 + 밑줄)
+    link_font = Font(color='0563C1', underline='single')
+
+    border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'),
+                    bottom=Side(style='thin'))
+
+    # 각 열의 인덱스 매핑 확인
+    col_idx = {col: i for i, col in enumerate(df.columns, 1)}
 
     for col_num, column_title in enumerate(df.columns, 1):
-        # 1행(헤더) 서식
         cell = worksheet.cell(row=1, column=col_num)
         cell.fill = header_fill
         cell.font = header_font
         cell.alignment = Alignment(horizontal='center')
 
-        # 2행부터 데이터 서식
         for row_num in range(2, len(df) + 2):
             data_cell = worksheet.cell(row=row_num, column=col_num)
             data_cell.border = border
 
-            # 숫자 포맷 고정
-            if column_title in ['IL_dB', 'ER_dB', 'VpiL_Vcm']:
-                data_cell.number_format = '0.000'
+            # 1. 하이퍼링크 수식 적용 (Folder_Link 열인 경우)
+            if column_title == 'Folder_Link':
+                # 같은 행의 다른 셀에서 파일 경로에 필요한 변수 추출
+                w_id = worksheet.cell(row=row_num, column=col_idx['Wafer']).value
+                d_str = worksheet.cell(row=row_num, column=col_idx['Date']).value
+                die_c = worksheet.cell(row=row_num, column=col_idx['Column']).value
+                die_r = worksheet.cell(row=row_num, column=col_idx['Row']).value
 
-            # 에러 행 하이라이트
-            if worksheet.cell(row=row_num, column=df.columns.get_loc('Status') + 1).value == "이상 발생":
+                # 상대 경로 생성 (엑셀 파일 위치 기준: ../res/Wafer/날짜/좌표)
+                # 윈도우 탐색기에서 바로 열리도록 역슬래시(\) 조합으로 세팅
+                target_folder = f".\\{w_id}\\{d_str}\\C{die_c}_R{die_r}"
+
+                # HYPERLINK 수식 삽입
+                data_cell.value = f'=HYPERLINK("{target_folder}", "📂 바로가기")'
+                data_cell.font = link_font
+                data_cell.alignment = Alignment(horizontal='center')
+
+            else:
+                # 일반 숫자 포맷 고정
+                if column_title in ['IL_dB', 'ER_dB', 'VpiL_Vcm']:
+                    data_cell.number_format = '0.000'
+
+            # 2. 에러 행 하이라이트 (링크 열은 파란색 유지를 위해 제외)
+            status_value = worksheet.cell(row=row_num, column=col_idx['Status']).value
+            if status_value == "이상 발생" and column_title != 'Folder_Link':
                 data_cell.fill = error_fill
 
-    # 한글 및 소수점 너비 깨짐을 방지하는 스마트 열 너비 조절
+    # 스마트 열 너비 조절
     for col in worksheet.columns:
         max_length = 0
         column_letter = get_column_letter(col[0].column)
         for cell in col:
             if cell.value is not None:
                 text = str(cell.value)
-                # 한글 데이터 너비 보정
                 adjusted_length = sum(2 if ord(c) > 127 else 1 for c in text)
                 max_length = max(max_length, adjusted_length)
-        worksheet.column_dimensions[column_letter].width = max_length + 2
+        worksheet.column_dimensions[column_letter].width = max_length + 3
 
-print(f"✅ 엑셀 리포트 완료: {save_path}")
+print(f"✅ 하이퍼링크 리포트 완료: {save_path}")
