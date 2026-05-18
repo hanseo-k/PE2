@@ -5,7 +5,8 @@ from scipy.signal import find_peaks, savgol_filter
 from data_parser import parse_wafer_data
 
 zip_path = "../dat/HY202103.zip"
-base_save_dir = "../res/phase shift -voltage"
+# 1. Base 폴더를 res로 통일
+base_save_dir = "../res"
 target_wafers = ['D07', 'D08', 'D23', 'D24']
 
 for d in parse_wafer_data(zip_path, target_wafers):
@@ -14,7 +15,8 @@ for d in parse_wafer_data(zip_path, target_wafers):
     if len(v_ref_wl) < 31: continue
     poly_func = np.poly1d(np.polyfit(v_ref_wl, savgol_filter(v_ref_il, 31, 3), 3))
 
-    tgt_data = next((b for b in d['bias_data_list'] if b['bias'] == -2.0), d['bias_data_list'][0] if d['bias_data_list'] else None)
+    tgt_data = next((b for b in d['bias_data_list'] if b['bias'] == -2.0),
+                    d['bias_data_list'][0] if d['bias_data_list'] else None)
     if not tgt_data: continue
 
     w, i = tgt_data['wl'], tgt_data['il']
@@ -45,7 +47,7 @@ for d in parse_wafer_data(zip_path, target_wafers):
         if i_idx + 1 >= len(p_b): continue
 
         lp, rp = p_b[i_idx], p_b[i_idx + 1]
-        v_idx = lp + np.argmin(flat_b[lp:rp+1])
+        v_idx = lp + np.argmin(flat_b[lp:rp + 1])
         phase_res.append({'bias': b['bias'], 'v_wl': wb_v[v_idx]})
 
     if not phase_res: continue
@@ -62,13 +64,24 @@ for d in parse_wafer_data(zip_path, target_wafers):
 
     plt.figure(figsize=(8, 5))
     plt.plot(biases, ph_arr, marker='o', lw=2)
-    plt.axhline(0, ls='--', alpha=0.5); plt.axvline(0, ls='--', alpha=0.5)
-    plt.xlabel("Bias Voltage (V)"); plt.ylabel("Phase Shift (deg)")
-    plt.title(f"{d['wafer_id']} ({d['die_r']},{d['die_c']}) {d['band']}\nPhase Shift")
+    plt.axhline(0, ls='--', alpha=0.5)
+    plt.axvline(0, ls='--', alpha=0.5)
+    plt.xlabel("Bias Voltage (V)")
+    plt.ylabel("Phase Shift (deg)")
+    plt.title(f"{d['wafer_id']} ({d['die_c']},{d['die_r']}) {d['band']}\nPhase Shift")
     plt.grid(True)
 
-    w_dir = os.path.join(base_save_dir, d['wafer_id'])
+    # --- 변경점: 날짜별 폴더 추가 ---
+    date_str = d.get('date', 'Unknown_Date')
+    coord_folder = f"C{d['die_c']}_R{d['die_r']}"
+
+    # 2. 새로운 저장 경로: res / Wafer / 날짜 / 좌표
+    w_dir = os.path.join(base_save_dir, d['wafer_id'], date_str, coord_folder)
     os.makedirs(w_dir, exist_ok=True)
-    plt.savefig(os.path.join(w_dir, f"{d['wafer_id']}_C{d['die_c']}_R{d['die_r']}_Phase.png"), bbox_inches='tight')
+
+    # 다른 코드들과 동일하게 밴드 정보를 파일명에 포함
+    save_filename = f"{d['wafer_id']}_C{d['die_c']}_R{d['die_r']}_{d['band']}_Phase.png"
+    plt.savefig(os.path.join(w_dir, save_filename), bbox_inches='tight')
     plt.close()
-print("✅ Phase Shift 완료")
+
+print("✅ Phase Shift 저장 완료")

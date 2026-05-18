@@ -5,10 +5,14 @@ import matplotlib.pyplot as plt
 from data_parser import parse_wafer_data
 
 zip_path = "../dat/HY202103.zip"
-base_save_dir = "../res/WaferMap_BoxPlot(IL)/IL_Analysis_Final"
-os.makedirs(base_save_dir, exist_ok=True)
+# 1. Base 폴더를 res로 통일
+base_res_dir = "../res"
 target_wafers = ['D07', 'D08', 'D23', 'D24']
 IL_TARGETS = {'LMZO': -8.75, 'LMZC': -8.75}
+
+# --- [통합 설정] 모든 분석 결과가 모일 res/Analysis 폴더 생성 ---
+global_analysis_dir = os.path.join(base_res_dir, "Analysis")
+os.makedirs(global_analysis_dir, exist_ok=True)
 
 il_data_list = []
 for d in parse_wafer_data(zip_path, target_wafers):
@@ -33,7 +37,9 @@ for _, group in df.groupby(['Wafer', 'Band']):
 max_rad = filtered_df['Radius'].max()
 filtered_df['Region'] = np.where(filtered_df['Radius'] > max_rad * 0.75, 'Edge', 'Center')
 
-# Wafer Map
+# ==========================================================
+# 2. Wafer Map 그리기 (통합 Analysis 폴더에 저장)
+# ==========================================================
 for b in filtered_df['Band'].unique():
     limits = {'min': np.floor(filtered_df[filtered_df['Band'] == b]['IL'].min()),
               'max': np.ceil(filtered_df[filtered_df['Band'] == b]['IL'].max())}
@@ -50,15 +56,19 @@ for b in filtered_df['Band'].unique():
                          vmax=limits['max'], s=500, edgecolor='black')
         for _, r in grp.iterrows(): plt.text(r['Column'], r['Row'], f"{r['IL']:.1f}", ha='center', va='center',
                                              fontweight='bold')
-        cb = plt.colorbar(sc, shrink=0.8);
+        cb = plt.colorbar(sc, shrink=0.8)
         cb.set_label('IL [dB]', fontsize=14, fontweight='bold')
 
         plt.title(f"Wafer Map: {w} / {b} (IL)", fontsize=18, fontweight='bold')
-        plt.gca().set_aspect('equal');
-        plt.savefig(os.path.join(base_save_dir, f"Map_{w}_{b}_IL.png"), bbox_inches='tight');
+        plt.gca().set_aspect('equal')
+
+        # --- 지정해 둔 통합 폴더로 저장 (Map_...) ---
+        plt.savefig(os.path.join(global_analysis_dir, f"Map_{w}_{b}_IL.png"), bbox_inches='tight')
         plt.close()
 
-# Box Plot
+# ==========================================================
+# 3. Box Plot 그리기 (통합 Analysis 폴더에 저장)
+# ==========================================================
 for b in ['LMZO', 'LMZC']:
     b_df = filtered_df[filtered_df['Band'] == b]
     if b_df.empty: continue
@@ -76,11 +86,15 @@ for b in ['LMZO', 'LMZC']:
     for p, c_hex in zip(box['boxes'], clr): p.set_facecolor(c_hex); p.set_alpha(0.6)
 
     avg_il, tgt_il = b_df['IL'].mean(), IL_TARGETS[b]
-    plt.axhline(avg_il, color='blue', ls='--', lw=2.5);
-    plt.axhline(tgt_il, color='red', ls='-', lw=2.5)
-    plt.xticks(pos, lbl, fontweight='bold');
+    plt.axhline(avg_il, color='blue', ls='--', lw=2.5, label=f'Avg: {avg_il:.2f} dB')
+    plt.axhline(tgt_il, color='red', ls='-', lw=2.5, label=f'Target: {tgt_il:.2f} dB')
+    plt.xticks(pos, lbl, fontweight='bold')
     plt.title(f"IL Analysis ({b})", fontweight='bold', fontsize=18)
-    plt.tight_layout();
-    plt.savefig(os.path.join(base_save_dir, f"Box_{b}_IL.png"), bbox_inches='tight');
+    plt.legend(loc='upper right')
+    plt.tight_layout()
+
+    # --- 지정해 둔 통합 폴더로 저장 (Box_...) ---
+    plt.savefig(os.path.join(global_analysis_dir, f"Box_{b}_IL.png"), bbox_inches='tight')
     plt.close()
-print("✅ IL 분석 완료")
+
+print("✅ 모든 IL 분석 결과(Wafer Map, Box Plot)가 'res/Analysis' 폴더에 통합 저장되었습니다!")

@@ -5,7 +5,7 @@ from scipy.signal import find_peaks
 from data_parser import parse_wafer_data
 
 zip_path = "../dat/HY202103.zip"
-base_save_dir = "../res/Flatting"
+base_save_dir = "../res"
 target_wafers = ['D07', 'D08', 'D23', 'D24']
 
 # 1. 데이터 파싱
@@ -44,23 +44,29 @@ for d in parse_wafer_data(zip_path, target_wafers):
 
         plt.plot(v_wl, flat_il, label=b['label'], alpha=0.8)
 
-    # 그래프 꾸미기 (두 번째 코드의 스타일 참고하여 제목에 밴드 정보 추가)
+    # 그래프 꾸미기
     plt.title(f"Wafer: {d['wafer_id']} / Coord: ({d['die_c']}, {d['die_r']}) / Band: {d['band']} Flattened")
     plt.xlabel('Wavelength [nm]')
     plt.ylabel('Transmission [dB]')
     plt.axhline(0, color='gray', ls='--')
     plt.xlim(d['wl_min'], d['wl_max'])
-    plt.ylim(-65, 5)  # 두 번째 코드의 y축 범위 적용 (필요에 따라 조정)
-    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')  # 범례 위치 조정
+    plt.ylim(-65, 5)
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.grid(True, ls='--')
 
-    # 저장 디렉토리 생성 및 저장
-    w_dir = os.path.join(base_save_dir, d['wafer_id'])
-    os.makedirs(w_dir, exist_ok=True)
+    # 2. 날짜 정보 가져오기 (이전 코드와 동일한 방식 적용)
+    date_str = d.get('date', 'Unknown_Date')
+    coord_folder = f"C{d['die_c']}_R{d['die_r']}"
+
+    # 3. 새로운 저장 경로: res / Wafer / 날짜 / 좌표
+    save_dir = os.path.join(base_save_dir, d['wafer_id'], date_str, coord_folder)
+    os.makedirs(save_dir, exist_ok=True)
 
     # 파일명에 밴드 정보 포함
     filename = f"{d['wafer_id']}_C{d['die_c']}_R{d['die_r']}_{d['band']}_Flat.png"
-    plt.savefig(os.path.join(w_dir, filename), bbox_inches='tight')
+
+    # 4. 변경된 좌표별 폴더에 파일 저장
+    plt.savefig(os.path.join(save_dir, filename), bbox_inches='tight')
     plt.close()
 
 print("✅ 기본 평탄화 저장 완료")

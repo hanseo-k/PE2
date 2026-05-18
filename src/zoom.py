@@ -5,7 +5,7 @@ from scipy.signal import find_peaks
 from data_parser import parse_wafer_data
 
 zip_path = "../dat/HY202103.zip"
-base_save_dir = "../res/zoom"
+base_save_dir = "../res"
 target_wafers = ['D07', 'D08', 'D23', 'D24']
 
 # 평탄화 코드와 완전히 동일하게 데이터를 파싱합니다.
@@ -65,11 +65,15 @@ for d in parse_wafer_data(zip_path, target_wafers):
     plt.ylabel('Transmission [dB]')
     plt.grid(True, ls='--')
 
-    w_dir = os.path.join(base_save_dir, d['wafer_id'])
+    # --- 변경된 부분: 날짜별 폴더 추가 ---
+    date_str = d.get('date', 'Unknown_Date')
+    coord_folder = f"C{d['die_c']}_R{d['die_r']}"
+
+    # 새로운 저장 경로: res / Wafer / 날짜 / 좌표
+    w_dir = os.path.join(base_save_dir, d['wafer_id'], date_str, coord_folder)
     os.makedirs(w_dir, exist_ok=True)
 
-    # 💡 수정 핵심: 이전 코드의 규칙에 맞춰 파일명에 {d['band']} 추가
-    # 결과 예시: D07_C1_R2_O-Band_Zoom.png
+    # 결과 예시: D07_C1_R2_LMZO_Zoom.png
     save_filename = f"{d['wafer_id']}_C{d['die_c']}_R{d['die_r']}_{d['band']}_Zoom.png"
     plt.savefig(os.path.join(w_dir, save_filename), bbox_inches='tight')
     plt.close()

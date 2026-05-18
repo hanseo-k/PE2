@@ -5,7 +5,7 @@ from scipy.signal import find_peaks, savgol_filter
 from data_parser import parse_wafer_data
 
 zip_path = "../dat/HY202103.zip"
-base_save_dir = "../res/Fitting"
+base_save_dir = "../res"
 target_wafers = ['D07', 'D08', 'D23', 'D24']
 count = 0
 
@@ -78,7 +78,12 @@ for d in parse_wafer_data(zip_path, target_wafers):
     plt.legend(bbox_to_anchor=(1.25, 1.0))
     plt.grid(True, ls='--', alpha=0.7)
 
-    w_dir = os.path.join(base_save_dir, d['wafer_id'])
+    # --- 변경된 부분: 날짜별 폴더 추가 ---
+    date_str = d.get('date', 'Unknown_Date')
+    coord_folder = f"C{d['die_c']}_R{d['die_r']}"
+
+    # 새로운 저장 경로: res / Wafer / 날짜 / 좌표
+    w_dir = os.path.join(base_save_dir, d['wafer_id'], date_str, coord_folder)
     os.makedirs(w_dir, exist_ok=True)
 
     # 밴드 정보를 포함하여 저장

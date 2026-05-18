@@ -13,15 +13,15 @@ def main():
     # 실행할 스크립트들의 목록입니다.
     scripts_to_run = [
         "data_parser.py",  # 1. 데이터 파싱
-        "export_summary.py",
-        "flatting.py",  # 2. 데이터 전처리 (플래트닝)
-        "Fitting_Savitzky.py",  # 3. 피팅
-        "Phase shift - V.py",  # 4. 분석
-        "VpiL_Advanced.py",  # 6. 분석 3
-        "ER_Analysis.py",  # 7. 분석 4
-        "IL_Analysis.py",  # 8. 분석 5
-        "plot.py",  # 9. 시각화 1
-        "zoom.py"  # 10. 시각화 2
+        "plot.py",
+        "flatting.py",
+        "zoom.py",
+        "Fitting.py",
+        "Phase shift - V.py",
+        "ER_Analysis.py",
+        "IL_Analysis.py",
+        "VpiL.py",
+        "export_summary.py"
     ]
 
     print("=== 통합 실행을 시작합니다 ===")

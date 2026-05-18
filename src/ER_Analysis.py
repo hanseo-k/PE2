@@ -6,11 +6,11 @@ from scipy.signal import find_peaks
 from data_parser import parse_wafer_data
 
 zip_path = "../dat/HY202103.zip"
-base_save_dir = "../res/WaferMap_BoxPlot(ER)/ER_Flattened"
-os.makedirs(base_save_dir, exist_ok=True)
+# 1. Base 폴더를 res로 통일
+base_res_dir = "../res"
 target_wafers = ['D07', 'D08', 'D23', 'D24']
 
-print("평탄화 로직 기반 ER 추출 및 Center vs Edge 분석을 시작합니다...")
+print("🚀 평탄화 로직 기반 ER 추출 및 Center vs Edge 분석을 시작합니다...")
 
 er_data_list = []
 count = 0
@@ -63,7 +63,9 @@ max_rad = filtered_df['Radius'].max()
 edge_thresh = max_rad * 0.75
 filtered_df['Region'] = np.where(filtered_df['Radius'] > edge_thresh, 'Edge', 'Center')
 
-# Wafer Map 그리기
+# ==========================================================
+# 2. Wafer Map 그리기 (각 웨이퍼의 Analysis 폴더에 저장)
+# ==========================================================
 for b in filtered_df['Band'].unique():
     band_limits = {'min': np.floor(filtered_df[filtered_df['Band'] == b]['ER'].min()),
                    'max': np.ceil(filtered_df[filtered_df['Band'] == b]['ER'].max())}
@@ -92,12 +94,19 @@ for b in filtered_df['Band'].unique():
         plt.title(f"Wafer Map: {w} / {b} (Flattened ER)", fontsize=18, fontweight='bold', pad=15)
         plt.xlabel('Die Column', fontsize=16, fontweight='bold')
         plt.ylabel('Die Row', fontsize=16, fontweight='bold')
-        plt.grid(True, ls=':', alpha=0.5);
+        plt.grid(True, ls=':', alpha=0.5)
         plt.gca().set_aspect('equal')
-        plt.savefig(os.path.join(base_save_dir, f"WaferMap_{w}_{b}_ER.png"), bbox_inches='tight')
+        global_analysis_dir = os.path.join(base_res_dir, "Analysis")
+        os.makedirs(global_analysis_dir, exist_ok=True)
+        plt.savefig(os.path.join(global_analysis_dir, f"Map_{w}_{b}_ER.png"), bbox_inches='tight')
         plt.close()
 
-# Box Plot 그리기
+# ==========================================================
+# 3. Box Plot 그리기 (최상위 Analysis 폴더에 저장)
+# ==========================================================
+global_analysis_dir = os.path.join(base_res_dir, "Analysis")
+os.makedirs(global_analysis_dir, exist_ok=True)
+
 for band in ['LMZO', 'LMZC']:
     b_df = filtered_df[filtered_df['Band'] == band]
     if b_df.empty: continue
@@ -124,11 +133,14 @@ for band in ['LMZO', 'LMZC']:
     plt.axhline(20.0, color='red', ls='-', lw=2.5, label='Theoretical: 20 dB')
 
     plt.title(f"Extinction Ratio: Center vs Edge ({band})", fontsize=18, fontweight='bold', pad=15)
-    plt.xticks(pos, labels, fontsize=13, fontweight='bold');
+    plt.xticks(pos, labels, fontsize=13, fontweight='bold')
     plt.yticks(fontsize=14, fontweight='bold')
-    plt.legend(loc='upper right', prop={'size': 13, 'weight': 'bold'});
+    plt.legend(loc='upper right', prop={'size': 13, 'weight': 'bold'})
     plt.grid(True, axis='y', ls=':', alpha=0.6)
     plt.tight_layout()
-    plt.savefig(os.path.join(base_save_dir, f"BoxPlot_{band}_ER_Flattened.png"), bbox_inches='tight')
+
+    # --- 박스 플롯 저장 경로 (res/Analysis) ---
+    plt.savefig(os.path.join(global_analysis_dir, f"BoxPlot_{band}_ER_Flattened.png"), bbox_inches='tight')
     plt.close()
-print("✅ ER 분석 완료")
+
+print("✅ ER 분석 및 저장 완료")

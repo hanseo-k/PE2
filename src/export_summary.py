@@ -18,7 +18,7 @@ THRESHOLD = {
 }
 
 zip_path = "../dat/HY202103.zip"
-save_path = "../res/Total_Analysis_Report.xlsx"
+save_path = "../res/Process_result.xlsx"
 os.makedirs("../res", exist_ok=True)
 
 target_wafers = ['D07', 'D08', 'D23', 'D24']
