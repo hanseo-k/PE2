@@ -12,38 +12,54 @@ target_wafers = ['D07', 'D08', 'D23', 'D24']
 for d in parse_wafer_data(zip_path, target_wafers):
     m = (d['ref_data']['wl'] >= d['wl_min']) & (d['ref_data']['wl'] <= d['wl_max'])
     v_ref_wl, v_ref_il = d['ref_data']['wl'][m], d['ref_data']['il'][m]
-    if len(v_ref_wl) < 4: continue
+    if len(v_ref_wl) < 4:
+        continue
 
     poly = np.poly1d(np.polyfit(v_ref_wl, v_ref_il, 3))
     z_min, z_max = d['wl_min'], d['wl_max']
 
     t_bias = next((b for b in d['bias_data_list'] if b['bias'] == -2.0),
                   d['bias_data_list'][0] if d['bias_data_list'] else None)
+
     if t_bias:
         mt = (t_bias['wl'] >= d['wl_min']) & (t_bias['wl'] <= d['wl_max'])
         wt, it = t_bias['wl'][mt], t_bias['il'][mt]
         peaks, _ = find_peaks(it - poly(wt), prominence=3.0, distance=30)
+
         if len(peaks) >= 2:
             cent = (wt[peaks[:-1]] + wt[peaks[1:]]) / 2.0
-            idx = np.argmin(np.abs(cent - d['target_wl']))
-            z_min, z_max = wt[peaks[idx]] - 0.5, wt[peaks[idx + 1]] + 0.5
+
+            # --- 이전 코드와 동일한 O밴드 처리 로직 적용 ---
+            band_str = str(d.get('band', '')).upper()
+            if 'O' in band_str:
+                target_wl = d.get('target_wl', 1310.0)  # O-band
+            else:
+                target_wl = d.get('target_wl', 1550.0)  # C/L-band
+
+            idx = np.argmin(np.abs(cent - target_wl))
+
+            # 인덱스 초과 방지 안전장치
+            if idx + 1 < len(peaks):
+                z_min, z_max = wt[peaks[idx]] - 0.5, wt[peaks[idx + 1]] + 0.5
 
     plt.figure(figsize=(10, 6))
     for b in d['bias_data_list']:
         mb = (b['wl'] >= d['wl_min']) & (b['wl'] <= d['wl_max'])
         wb, ib = b['wl'][mb], b['il'][mb]
-        if len(wb) == 0: continue
+        if len(wb) == 0:
+            continue
 
         flat = ib - poly(wb)
         peaks, _ = find_peaks(flat, prominence=3.0, distance=30)
-        if len(peaks) >= 2: flat -= np.poly1d(np.polyfit(wb[peaks], flat[peaks], 1))(wb)
+        if len(peaks) >= 2:
+            flat -= np.poly1d(np.polyfit(wb[peaks], flat[peaks], 1))(wb)
+
         plt.plot(wb, flat, label=b['label'], alpha=0.8)
 
     plt.axhline(0, color='gray', ls='--')
     plt.xlim(z_min, z_max)
     plt.legend(bbox_to_anchor=(1.25, 1.0))
 
-    # 제목 스타일도 평탄화 코드와 유사하게 맞추고 좌표를 표시했습니다.
     plt.title(f"Wafer: {d['wafer_id']} / {d['band']} Zoom Only (C{d['die_c']}_R{d['die_r']})")
     plt.xlabel('Wavelength [nm]')
     plt.ylabel('Transmission [dB]')
@@ -52,9 +68,9 @@ for d in parse_wafer_data(zip_path, target_wafers):
     w_dir = os.path.join(base_save_dir, d['wafer_id'])
     os.makedirs(w_dir, exist_ok=True)
 
-    # 💡 수정 핵심: 다른 코드와 완벽히 동일한 규칙으로 파일명을 생성합니다. (_Flat 대신 _Zoom 사용)
-    # 결과 예시: D07_C1_R2_Zoom.png
-    save_filename = f"{d['wafer_id']}_C{d['die_c']}_R{d['die_r']}_Zoom.png"
+    # 💡 수정 핵심: 이전 코드의 규칙에 맞춰 파일명에 {d['band']} 추가
+    # 결과 예시: D07_C1_R2_O-Band_Zoom.png
+    save_filename = f"{d['wafer_id']}_C{d['die_c']}_R{d['die_r']}_{d['band']}_Zoom.png"
     plt.savefig(os.path.join(w_dir, save_filename), bbox_inches='tight')
     plt.close()
 

@@ -15,7 +15,7 @@ def main():
         "data_parser.py",  # 1. 데이터 파싱
         "export_summary.py",
         "flatting.py",  # 2. 데이터 전처리 (플래트닝)
-        "Fittinf_Savitzky.py",  # 3. 피팅
+        "Fitting_Savitzky.py",  # 3. 피팅
         "Phase shift - V.py",  # 4. 분석
         "VpiL_Advanced.py",  # 6. 분석 3
         "ER_Analysis.py",  # 7. 분석 4
