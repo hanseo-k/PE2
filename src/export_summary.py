@@ -229,7 +229,7 @@ with pd.ExcelWriter(save_path, engine='openpyxl') as writer:
             if status_value == "이상 발생" and column_title != 'Folder_Link':
                 data_cell.fill = error_fill
 
-    # 스마트 열 너비 조절
+    # 스마트 열 너비 조
     for col in worksheet.columns:
         max_length = 0
         column_letter = get_column_letter(col[0].column)
