@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 from scipy.signal import find_peaks, savgol_filter
 from data_parser import parse_wafer_data
 
-zip_path = "../dat/HY202103.zip"
+zip_path = "../dat/HY202103"
 # 1. Base 폴더를 res로 통일
-base_save_dir = "../res"
+base_save_dir = "../res/png"
 target_wafers = ['D07', 'D08', 'D23', 'D24']
 
 for d in parse_wafer_data(zip_path, target_wafers):
@@ -73,7 +73,7 @@ for d in parse_wafer_data(zip_path, target_wafers):
 
     # --- 변경점: 날짜별 폴더 추가 ---
     date_str = d.get('date', 'Unknown_Date')
-    coord_folder = f"C{d['die_c']}_R{d['die_r']}"
+    coord_folder = f"HY202103_{d['wafer_id']}_({d['die_c']},{d['die_r']})_LION1_DCM_{d['band']}.png"
 
     # 2. 새로운 저장 경로: res / Wafer / 날짜 / 좌표
     w_dir = os.path.join(base_save_dir, d['wafer_id'], date_str, coord_folder)

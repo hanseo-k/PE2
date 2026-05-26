@@ -2,20 +2,20 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks, savgol_filter
+from concurrent.futures import ProcessPoolExecutor
 from data_parser import parse_wafer_data
 
-zip_path = "../dat/HY202103.zip"
-base_save_dir = "../res"
-target_wafers = ['D07', 'D08', 'D23', 'D24']
-count = 0
 
-for d in parse_wafer_data(zip_path, target_wafers):
+# 1. 각 코어가 독립적으로 가져가서 실행할 메인 작업 함수
+def _draw_and_save_zoomed_plot(args):
+    d, base_save_dir = args
+
     m = (d['ref_data']['wl'] >= d['wl_min']) & (d['ref_data']['wl'] <= d['wl_max'])
     v_ref_wl, v_ref_il = d['ref_data']['wl'][m], d['ref_data']['il'][m]
 
-    # Savitzky-Golay 필터 윈도우(31)보다 데이터가 적으면 에러가 나므로 예외 처리
+    # Savitzky-Golay 필터 윈도우(31)보다 데이터가 적으면 에러가 나므로 건너뜀
     if len(v_ref_wl) < 31:
-        continue
+        return None  # 기존의 continue 역할을 대신함
 
     sm_ref = savgol_filter(v_ref_il, 31, 3)
     poly = np.poly1d(np.polyfit(v_ref_wl, sm_ref, 3))
@@ -38,18 +38,14 @@ for d in parse_wafer_data(zip_path, target_wafers):
             if len(peaks) >= 2:
                 centers = (w_t[peaks[:-1]] + w_t[peaks[1:]]) / 2.0
 
-                # 밴드 정보(O밴드 등)에 따라 타겟 파장(target_wl) 설정
-                # d 딕셔너리에 target_wl이 제대로 안 들어있을 경우를 대비한 안전장치
                 band_str = str(d.get('band', '')).upper()
                 if 'O' in band_str:
-                    target_wl = d.get('target_wl', 1310.0)  # O-band 기본 중심
+                    target_wl = d.get('target_wl', 1310.0)
                 else:
-                    target_wl = d.get('target_wl', 1550.0)  # C/L-band 기본 중심
+                    target_wl = d.get('target_wl', 1550.0)
 
-                # 타겟 파장과 가장 가까운 피크 중앙값 찾기
                 idx = np.argmin(np.abs(centers - target_wl))
 
-                # 인덱스 초과 에러 방지
                 if idx + 1 < len(peaks):
                     z_min, z_max = w_t[peaks[idx]] - 0.5, w_t[peaks[idx + 1]] + 0.5
 
@@ -73,24 +69,52 @@ for d in parse_wafer_data(zip_path, target_wafers):
     plt.ylabel('Transmission [dB]')
     plt.axhline(0, color='gray', ls='--', alpha=0.6)
 
-    # 계산된 확대 구간(z_min, z_max) 적용
     plt.xlim(z_min, z_max)
     plt.legend(bbox_to_anchor=(1.25, 1.0))
     plt.grid(True, ls='--', alpha=0.7)
 
-    # --- 변경된 부분: 날짜별 폴더 추가 ---
+    # --- 날짜별 폴더 추가 및 저장 ---
     date_str = d.get('date', 'Unknown_Date')
-    coord_folder = f"C{d['die_c']}_R{d['die_r']}"
+    coord_folder = f"HY202103_{d['wafer_id']}_({d['die_c']},{d['die_r']})_LION1_DCM_{d['band']}.png"
 
-    # 새로운 저장 경로: res / Wafer / 날짜 / 좌표
     w_dir = os.path.join(base_save_dir, d['wafer_id'], date_str, coord_folder)
     os.makedirs(w_dir, exist_ok=True)
 
-    # 밴드 정보를 포함하여 저장
-    save_filename = f"{d['wafer_id']}_C{d['die_c']}_R{d['die_r']}_{d['band']}_Zoomed.png"
+    save_filename = f"{d['wafer_id']}_C{d['die_c']}_R{d['die_r']}_{d['band']}_Fitting.png"
     plt.savefig(os.path.join(w_dir, save_filename), bbox_inches='tight')
     plt.close()
 
-    count += 1
+    return save_filename  # 성공 시 파일명 반환
 
-print(f"✅ 리플 제거 및 확대 그래프 저장 완료 (총 {count}개)")
+
+def main():
+    zip_path = "../dat/HY202103"
+    base_save_dir = "../res/png"
+    target_wafers = ['D07', 'D08', 'D23', 'D24']
+
+    print("▶ 데이터 파싱을 시작합니다...")
+    # 파싱된 데이터를 리스트로 변환하여 메모리에 적재
+    parsed_data_list = list(parse_wafer_data(zip_path, target_wafers))
+    total_items = len(parsed_data_list)
+
+    # 각 코어에 넘겨줄 작업 튜플 리스트 생성
+    tasks = [(d, base_save_dir) for d in parsed_data_list]
+
+    print(f"▶ 리플 제거 및 확대 플롯 생성 ({total_items}개, 병렬 처리 중)...")
+
+    success_count = 0
+    # 8코어 풀가동
+    with ProcessPoolExecutor(max_workers=None) as ex:
+        futures = [ex.submit(_draw_and_save_zoomed_plot, t) for t in tasks]
+
+        for f in futures:
+            result = f.result()  # 반환값 확인
+            # 데이터 개수 부족(<31)으로 None이 반환된 게 아니라면 카운트 증가
+            if result is not None:
+                success_count += 1
+
+    print(f"✅ 리플 제거 및 확대 그래프 저장 완료 (총 {success_count}개)")
+
+
+if __name__ == "__main__":
+    main()

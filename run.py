@@ -18,9 +18,11 @@ def main():
         "zoom.py",
         "Fitting.py",
         "Phase shift - V.py",
+        "VpiL.py",
         "ER_Analysis.py",
         "IL_Analysis.py",
-        "VpiL.py",
+        "VpiL_Analysis.py",
+        "combine_plots.py",
         "export_summary.py"
     ]
 
