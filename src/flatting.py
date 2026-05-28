@@ -55,18 +55,17 @@ def _draw_and_save_flat(args):
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.grid(True, ls='--')
 
-    # 2. 날짜 정보 가져오기 (이전 코드와 동일한 방식 적용)
+    # --- [수정] 날짜별 폴더 하위에 바로 저장 ---
     date_str = d.get('date', 'Unknown_Date')
-    coord_folder = f"HY202103_{d['wafer_id']}_({d['die_c']},{d['die_r']})_LION1_DCM_{d['band']}.png"
 
-    # 3. 새로운 저장 경로: res / Wafer / 날짜 / 좌표
-    save_dir = os.path.join(base_save_dir, d['wafer_id'], date_str, coord_folder)
+    # coord_folder를 거치지 않고 wafer_id와 date_str 폴더까지만 생성
+    save_dir = os.path.join(base_save_dir, d['wafer_id'], date_str)
     os.makedirs(save_dir, exist_ok=True)
 
-    # 파일명에 밴드 정보 포함
+    # 파일명 설정 (밴드 정보 포함)
     filename = f"{d['wafer_id']}_C{d['die_c']}_R{d['die_r']}_{d['band']}_Flat.png"
 
-    # 4. 변경된 좌표별 폴더에 파일 저장
+    # 날짜 폴더에 바로 파일 저장
     plt.savefig(os.path.join(save_dir, filename), bbox_inches='tight')
     plt.close()
 

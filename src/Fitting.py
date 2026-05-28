@@ -87,11 +87,11 @@ def _draw_and_save_zoomed_plot(args):
     plt.legend(bbox_to_anchor=(1.25, 1.0))
     plt.grid(True, ls='--', alpha=0.7)
 
-    # --- 날짜별 폴더 추가 및 저장 ---
+    # --- [수정] 날짜별 폴더 하위에 바로 저장 ---
     date_str = d.get('date', 'Unknown_Date')
-    coord_folder = f"HY202103_{d['wafer_id']}_({d['die_c']},{d['die_r']})_LION1_DCM_{d['band']}.png"
 
-    w_dir = os.path.join(base_save_dir, d['wafer_id'], date_str, coord_folder)
+    # coord_folder를 거치지 않고 wafer_id와 date_str 폴더까지만 경로로 지정합니다.
+    w_dir = os.path.join(base_save_dir, d['wafer_id'], date_str)
     os.makedirs(w_dir, exist_ok=True)
 
     save_filename = f"{d['wafer_id']}_C{d['die_c']}_R{d['die_r']}_{d['band']}_Fitting.png"

@@ -22,12 +22,14 @@ def _draw_and_save_plot(args):
     plt.legend(loc='best')
     plt.grid(True)
 
-    # ------------------- 저장 경로 설정 -------------------
+    # ------------------- [수정] 저장 경로 설정 -------------------
     date_str = d.get('date', 'Unknown_Date')
-    coord_folder = f"HY202103_{d['wafer_id']}_({d['die_c']},{d['die_r']})_LION1_DCM_{d['band']}.png"
-    w_dir = os.path.join(base_save_dir, d['wafer_id'], date_str, coord_folder)
+
+    # coord_folder를 거치지 않고 웨이퍼ID/날짜 폴더까지만 생성하여 바로 위치시킵니다.
+    w_dir = os.path.join(base_save_dir, d['wafer_id'], date_str)
     os.makedirs(w_dir, exist_ok=True)
 
+    # 날짜 폴더 안에 모든 좌표 파일들이 모이므로 구분하기 편하도록 기존 파일명 구조를 유지합니다.
     save_filename = f"{d['wafer_id']}_C{d['die_c']}_R{d['die_r']}_{d['band']}_Raw.png"
 
     # ------------------- 파일 저장 및 메모리 해제 -------------------

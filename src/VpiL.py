@@ -6,6 +6,7 @@ from scipy.signal import find_peaks, savgol_filter
 from concurrent.futures import ProcessPoolExecutor
 from data_parser import parse_wafer_data
 
+
 # ==========================================================
 # 1. 전역 보조 함수
 # ==========================================================
@@ -15,6 +16,7 @@ def q_sub(x, y):
     if idx == 0 or idx == len(x) - 1: return x[idx]
     c = np.polyfit(x[idx - 1:idx + 2], y[idx - 1:idx + 2], 2)
     return -c[1] / (2 * c[0]) if abs(c[0]) > 1e-12 else x[idx]
+
 
 # ==========================================================
 # 2. 개별 Die VpiL 연산 및 플롯 저장
@@ -84,13 +86,17 @@ def _process_vpil(args):
     plt.grid(True)
     plt.legend()
 
-    coord_folder = f"HY202103_{d['wafer_id']}_({d['die_c']},{d['die_r']})_LION1_DCM_{d['band']}.png"
-    w_dir = os.path.join(base_res_dir, wafer, date_str, coord_folder)
+    # ------------------- [수정] 저장 경로 설정 -------------------
+    # 깊은 하위 폴더(coord_folder) 경로를 제거하고 날짜 폴더까지만 경로로 설정합니다.
+    w_dir = os.path.join(base_res_dir, wafer, date_str)
     os.makedirs(w_dir, exist_ok=True)
-    plt.savefig(os.path.join(w_dir, f"{wafer}_C{c}_R{r}_{band}_VpiL.png"))
+
+    # 생성된 파일이 날짜 폴더 안에 바로 저장됩니다.
+    plt.savefig(os.path.join(w_dir, f"{wafer}_C{c}_R{r}_{band}_VpiL.png"), bbox_inches='tight')
     plt.close()
 
     return True
+
 
 # ==========================================================
 # 3. 메인 실행 블록
@@ -115,6 +121,7 @@ def main():
                 valid_count += 1
 
     print(f"✅ 개별 그래프 저장 완료 (유효 Die: {valid_count}개)")
+
 
 if __name__ == "__main__":
     main()

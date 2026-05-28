@@ -68,16 +68,17 @@ def _draw_and_save_zoom_only(args):
     plt.ylabel('Transmission [dB]')
     plt.grid(True, ls='--')
 
-    # --- 날짜별 폴더 추가 및 저장 ---
+    # --- [수정] 날짜별 폴더 하위에 바로 저장 ---
     date_str = d.get('date', 'Unknown_Date')
-    coord_folder = f"HY202103_{d['wafer_id']}_({d['die_c']},{d['die_r']})_LION1_DCM_{d['band']}.png"
 
-    # 새로운 저장 경로: res / Wafer / 날짜 / 좌표
-    w_dir = os.path.join(base_save_dir, d['wafer_id'], date_str, coord_folder)
+    # coord_folder를 거치지 않고 wafer_id와 date_str 폴더까지만 생성
+    w_dir = os.path.join(base_save_dir, d['wafer_id'], date_str)
     os.makedirs(w_dir, exist_ok=True)
 
     # 결과 예시: D07_C1_R2_LMZO_Zoom.png
     save_filename = f"{d['wafer_id']}_C{d['die_c']}_R{d['die_r']}_{d['band']}_Zoom.png"
+
+    # 날짜 폴더 안에 파일 바로 저장
     plt.savefig(os.path.join(w_dir, save_filename), bbox_inches='tight')
     plt.close()
 

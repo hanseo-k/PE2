@@ -22,7 +22,7 @@ def main():
         "ER_Analysis.py",
         "IL_Analysis.py",
         "VpiL_Analysis.py",
-        "combine_plots.py",
+        "combine_plot.py",
         "export_summary.py"
     ]
 
