@@ -9,7 +9,12 @@
 This project is an end-to-end pipeline that automatically analyzes wafer-level test data from optical devices such as Mach-Zehnder Modulators and outputs the results as a dashboard-style report for at-a-glance visualization.
 
 ---
-
+# 📝Contents
+1. Introduction
+2. Project information
+3. Directory Structure
+4. Install and Run
+---
 ## 📁 디렉토리 구조 (Directory Structure)
 
 정상적인 분석 실행을 위해 데이터와 스크립트가 아래의 구조를 유지해야 합니다. 
