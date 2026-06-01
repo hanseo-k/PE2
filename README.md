@@ -66,12 +66,12 @@
   * 원본 XML 데이터 파일에서 분석에 필요한 타겟 밴드(LMZC, LMZO) 스펙트럼 데이터를 불러옵니다.
 * **`plot.py` (원시 데이터 플롯)**
   * 파싱된 Raw 데이터를 바탕으로 기본 파장-투과도(Transmission) 스펙트럼 플롯을 생성합니다.
-![D07_C0_R0_LMZC_Raw.png](res/png/D07/20190715/D07_C0_R0_LMZC_Raw.png)
+![img.png](png_README/img1.png)
 
 ### 2. 신호 보정 및 타겟 영역 추출
 * **`flatting.py` (신호 평탄화)**
   * Reference 소자와 MZM 소자 간에 발생하는 오차를 보정하여 신호의 베이스라인을 평탄화(Flattening)합니다.
-![D07_C0_R0_LMZC_Flat.png](res/png/D07/20190715/D07_C0_R0_LMZC_Flat.png)
+![img.png](img2.png)
 * **`zoom.py` (타겟 파장 줌인)**
   * 밴드별 특성에 맞춰 주요 분석 타겟 파장 영역을 집중적으로 확대합니다. (LMZC: 1550 nm / LMZO: 1310 nm)
 ![D07_C0_R0_LMZC_Zoom.png](res/png/D07/20190715/D07_C0_R0_LMZC_Zoom.png)
@@ -85,7 +85,7 @@
 ![D07_C0_R0_LMZC_Phase.png](res/png/D07/20190715/D07_C0_R0_LMZC_Phase.png)
 * **`VpiL.py` ($V_\pi L$ 추출)**
   * 바이어스에 따른 위상 변화를 반파장 전압($V_\pi$)으로 환산하고, 소자의 길이($L$)를 곱하여 최종적인 전광 변조 효율 지표인 $V_\pi L$ 수치를 계산합니다.
-![D07_C0_R0_LMZC_VpiL.png](res/png/D07/20190715/D07_C0_R0_LMZC_VpiL.png)
+![img.png](png_README/img.png)
 
 ### 4. 시각화 병합 및 리포트 자동 생성
 * **`ER_Analysis,py` (Wafer Map, Box graph 데이터)**
