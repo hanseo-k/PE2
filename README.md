@@ -15,6 +15,44 @@
 This project is an end-to-end pipeline that automatically analyzes wafer-level test data from optical devices such as Mach-Zehnder Modulators and outputs the results as a dashboard-style report for at-a-glance visualization.
 
 ---
+## 1. Introduction
+-PE2: WOP project
+
+Our goal is to build a system that automatically analyzes optical characteristics using Python and XML data.
+## 👥 Contributors
+
+|     Name      |       E-mail       | 
+|:-------------:|:------------------:|
+|  Lee Hangyol  | 0000@hanyang.ac.kr |
+| Jeong Jae-min | 0000@hanyang.ac.kr |
+| Lee HyoSeong  | 0000@hanyang.ac.kr |
+|  Kim HanSeo   | 0000@hanyang.ac.kr |
+---
+# 2. Project information
+### 📖 About This Project
+
+Our goal is to build a system that automatically analyzes
+optical characteristics using Python and XML data.
+
+The system receives raw wafer data from the customer along
+with specific analysis requests, including:
+
+- Target Wafer
+- Die Row & Column
+- Analysis Options
+
+Based on these inputs, the pipeline acts as a **black box** —
+automatically processing the requested data and delivering
+the final results without manual intervention.
+
+---
+
+### ▶️ How It Works
+
+1. Extract files named `HY202103` from the customer-provided dataset
+2. Process raw XML data through a series of analysis modules
+3. Export the final results as `.csv` and `.xlsx` reports
+---
 ## 📁 Directory Structure
 
 The project is structured to separate raw inputs, 
