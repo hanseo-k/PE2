@@ -2,7 +2,8 @@ import os
 import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks, savgol_filter
-from data_parser import parse_wafer_data
+from data_parser import load_parsed
+from analysis_utils import q_sub
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
@@ -27,14 +28,6 @@ os.makedirs(save_dir_csv, exist_ok=True)
 
 target_wafers = ['D07', 'D08', 'D23', 'D24']
 L_length = 0.05
-
-
-def q_sub(x, y):
-    if len(x) < 3: return x[np.argmin(y)]
-    idx = np.argmin(y)
-    if idx == 0 or idx == len(x) - 1: return x[idx]
-    c = np.polyfit(x[idx - 1:idx + 2], y[idx - 1:idx + 2], 2)
-    return -c[1] / (2 * c[0]) if abs(c[0]) > 1e-12 else x[idx]
 
 
 def check_status(row):
@@ -132,7 +125,7 @@ def apply_excel_style(worksheet, dataframe):
 print("🚀 데이터 분석 및 계산을 시작합니다...")
 data_list = []
 
-for d in parse_wafer_data(zip_path, target_wafers):
+for d in load_parsed(zip_path, target_wafers):
     wafer, band, c, r = d['wafer_id'], d['band'], d['die_c'], d['die_r']
     radius = np.sqrt(c ** 2 + r ** 2)
     date_str = d.get('date', 'Unknown_Date')
