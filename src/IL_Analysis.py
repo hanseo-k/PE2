@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from data_parser import parse_wafer_data
+from data_parser import load_parsed
 
 zip_path = "../dat/HY202103"
 base_res_dir = "../res/png"
@@ -18,7 +18,7 @@ os.makedirs(box_plot_dir, exist_ok=True)
 print("🚀 IL 추출 및 날짜별/Center vs Edge 통합 분석을 시작합니다...")
 
 il_data_list = []
-for d in parse_wafer_data(zip_path, target_wafers):
+for d in load_parsed(zip_path, target_wafers):
     date_str = d.get('date', 'Unknown_Date')
 
     max_peak = -999.0
