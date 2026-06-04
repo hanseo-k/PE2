@@ -4,15 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks, savgol_filter
 from concurrent.futures import ProcessPoolExecutor
-from data_parser import parse_wafer_data
-
-
-def q_sub(x, y):
-    if len(x) < 3: return x[np.argmin(y)]
-    idx = np.argmin(y)
-    if idx == 0 or idx == len(x) - 1: return x[idx]
-    c = np.polyfit(x[idx - 1:idx + 2], y[idx - 1:idx + 2], 2)
-    return -c[1] / (2 * c[0]) if abs(c[0]) > 1e-12 else x[idx]
+from data_parser import load_parsed
+from ref_poly import q_sub, ref_poly
 
 
 def _extract_vpil_data(args):
@@ -27,7 +20,7 @@ def _extract_vpil_data(args):
     if len(v_ref_wl) < 31:
         return None
 
-    poly_func = np.poly1d(np.polyfit(v_ref_wl, savgol_filter(v_ref_il, 31, 3), 3))
+    poly_func = ref_poly(v_ref_wl, v_ref_il, smooth=True)
 
     # 💡 [수정됨] 부동소수점 오차 방지를 위해 == 0.0 대신 절대값 비교 사용
     z_data = next((b for b in d['bias_data_list'] if b['bias'] is not None and abs(b['bias']) < 1e-3), None)
@@ -92,7 +85,7 @@ def main():
 
     print("🚀 분석용 데이터 추출을 시작합니다...")
 
-    parsed_data_list = list(parse_wafer_data(zip_path, target_wafers))
+    parsed_data_list = load_parsed(zip_path, target_wafers)
     tasks = [(d, L_length) for d in parsed_data_list]
     summary_rows = []
 
@@ -136,7 +129,7 @@ def main():
     print(f"✅ 데이터 추출 및 필터링 완료! (총 {len(filtered_df)}개 다이 분석)")
 
     # ==========================================================
-    # Wafer Map 그리기
+    # Wafer Map 그리기 (격자 및 좌표 추가 수정본)
     # ==========================================================
     print("▶ 웨이퍼 및 날짜별 Wafer Map 생성 중...")
     band_limits = {}
@@ -144,35 +137,77 @@ def main():
         b_data = filtered_df[filtered_df['Band'] == b]['VpiL_0V']
         band_limits[b] = {'min': b_data.min() - 0.05, 'max': b_data.max() + 0.05}
 
-    for (wafer, band, date), group in filtered_df.groupby(['Wafer', 'Band', 'Date']):
-        plt.figure(figsize=(9, 9))
-        theta = np.linspace(0, 2 * np.pi, 100)
-        plt.plot((max_r + 0.5) * np.cos(theta), (max_r + 0.5) * np.sin(theta), color='gray', lw=2)
-        plt.plot(edge_limit * np.cos(theta), edge_limit * np.sin(theta), color='red', ls='--', lw=2, alpha=0.6)
+    # 격자 범위를 결정하기 위해 물리적 반경(`max_r`)을 기준으로 축 Limits 설정 (대칭)
+    # 0.5 여유를 두어 원 가장자리 데이터가 격자에 걸치지 않게 함
+    map_limit = np.ceil(max_r) + 0.5
 
+    for (wafer, band, date), group in filtered_df.groupby(['Wafer', 'Band', 'Date']):
+        # figsize를 정방형으로 유지
+        plt.figure(figsize=(10, 10))
+        ax = plt.gca()  # 현재 Axes 객체 가져오기
+
+        # 1. 웨이퍼 외곽선 및 Edge 영역 구분선 (zorder=1: 맨 아래)
+        theta = np.linspace(0, 2 * np.pi, 100)
+        ax.plot((max_r + 0.5) * np.cos(theta), (max_r + 0.5) * np.sin(theta), color='#555555', lw=2, zorder=1)  # 외곽선
+        ax.plot(edge_limit * np.cos(theta), edge_limit * np.sin(theta), color='#FF8888', ls='--', lw=2, alpha=0.7,
+                zorder=1)  # Edge 구분
+
+        # 2. 바둑판 격자 및 축 설정
+        ax.set_aspect('equal')  # 정방형 비율 유지
+
+        # 축 범위 설정 (0,0 기준 대칭)
+        ax.set_xlim(-map_limit, map_limit)
+        ax.set_ylim(-map_limit, map_limit)
+
+        # Ticks 설정: 정수 좌표에 눈금을 매김 (zorder=0으로 설정하기 위해 grid 사용 권장)
+        ticks = np.arange(-np.floor(map_limit), np.ceil(map_limit) + 1, 1)
+        ax.set_xticks(ticks)
+        ax.set_yticks(ticks)
+
+        # 격자 추가: 주요 눈금(Major Ticks) 위에 회색 점선 격자 (zorder=2: 외곽선 위, 데이터 아래)
+        ax.grid(True, which='major', axis='both', color='#DDDDDD', linestyle='--', linewidth=1, zorder=2)
+
+        # 축 라벨 스타일 및 표시 설정 (plt.axis('off')를 제거했으므로 보임)
+        ax.tick_params(axis='both', which='major', labelsize=11, labelcolor='#333333')
+        # Ticks 굵게 (Optional)
+        for label in ax.get_xticklabels() + ax.get_yticklabels():
+            label.set_fontweight('bold')
+
+        # 축 이름 설정
+        ax.set_xlabel("Column (X Coordinate)", fontsize=14, fontweight='bold', labelpad=10)
+        ax.set_ylabel("Row (Y Coordinate)", fontsize=14, fontweight='bold', labelpad=10)
+
+        # 컬러 바 범위
         v_min, v_max = band_limits[band]['min'], band_limits[band]['max']
 
-        scatter = plt.scatter(group['Column'], group['Row'], c=group['VpiL_0V'], cmap='coolwarm',
-                              vmin=v_min, vmax=v_max, s=500, edgecolor='black', alpha=0.9, zorder=5)
+        # 3. 데이터 포인트 플로팅 (zorder=5: 격자 위)
+        # 데이터가 많아 격자가 좁아 보일 경우 s(size)를 약간 줄여도 좋습니다 (예: 400).
+        scatter = ax.scatter(group['Column'], group['Row'], c=group['VpiL_0V'], cmap='coolwarm',
+                             vmin=v_min, vmax=v_max, s=500, edgecolor='black', alpha=0.9, zorder=5)
 
+        # 4. 데이터 값 텍스트 표시 (zorder=6: 데이터 포인트 위)
         for _, row in group.iterrows():
-            plt.text(row['Column'], row['Row'], f"{row['VpiL_0V']:.2f}",
-                     ha='center', va='center', fontsize=10, weight='bold', color='black', zorder=10)
+            ax.text(row['Column'], row['Row'], f"{row['VpiL_0V']:.2f}",
+                    ha='center', va='center', fontsize=9, weight='bold', color='black', zorder=6)
 
-        cb = plt.colorbar(scatter, shrink=0.8)
-        cb.set_label('Vpi*L @ 0V [V*cm]', fontsize=14, fontweight='bold')
-        cb.ax.tick_params(labelsize=12)
-        for l in cb.ax.yaxis.get_ticklabels(): l.set_weight("bold")
+        # 컬러바 설정
+        cb = plt.colorbar(scatter, shrink=0.8, pad=0.03)
+        cb.set_label('Vpi*L @ 0V [V*cm]', fontsize=13, fontweight='bold')
+        cb.ax.tick_params(labelsize=11)
+        for label in cb.ax.yaxis.get_ticklabels(): label.set_weight("bold")
 
-        plt.title(f"Wafer Map: {wafer} / {band} (VpiL)\nDate: {date}", fontsize=18, fontweight='bold', pad=15)
-        plt.axis('off')
-        plt.gca().set_aspect('equal')
+        # 제목 설정
+        plt.title(f"Wafer Map: {wafer} / {band} (VpiL)\nDate: {date}", fontsize=17, fontweight='bold', pad=20)
 
+        # [수정] plt.axis('off') 제거 (축을 보이게 함)
+        # plt.tight_layout() # 격자와 라벨이 잘리지 않게 조정
+
+        # 저장
         w_dir = os.path.join(wafer_map_dir, wafer, date)
         os.makedirs(w_dir, exist_ok=True)
-        plt.savefig(os.path.join(w_dir, f"Map_{wafer}_{band}_{date}_VpiL_0V.png"), bbox_inches='tight')
+        # bbox_inches='tight'는 축 라벨이 그림 밖으로 잘 나가지 않게 해줍니다.
+        plt.savefig(os.path.join(w_dir, f"Map_{wafer}_{band}_{date}_VpiL_0V.png"), bbox_inches='tight', dpi=100)
         plt.close()
-
     # ==========================================================
     # Box Plot 그리기 (VpiL 맞춤형 디자인)
     # ==========================================================

@@ -1,7 +1,7 @@
 import os
 import matplotlib.pyplot as plt
 from concurrent.futures import ProcessPoolExecutor
-from data_parser import parse_wafer_data
+from data_parser import load_parsed
 
 
 # 1. 병렬 코어들이 나누어서 실행할 독립적인 함수 (파일 최상단에 위치)
@@ -69,7 +69,7 @@ def main():
 
     print("▶ 데이터 파싱을 시작합니다...")
     # 2. 제너레이터에서 데이터를 모두 추출하여 리스트로 만듭니다. (작업 분배용)
-    parsed_data_list = list(parse_wafer_data(zip_path, target_wafers))
+    parsed_data_list = load_parsed(zip_path, target_wafers)
     total_tasks = len(parsed_data_list)
     print(f"▶ 총 {total_tasks}개의 그래프 데이터를 불러왔습니다.")
 

@@ -12,7 +12,6 @@ def main():
 
     # 실행할 스크립트들의 목록입니다.
     scripts_to_run = [
-        "data_parser.py",  # 1. 데이터 파싱
         "plot.py",
         "flatting.py",
         "zoom.py",
@@ -44,13 +43,11 @@ def main():
             print(f"▷ 완료: {script}")
 
         except subprocess.CalledProcessError as e:
-            print(f"\n[오류] {script} 실행 중 에러가 발생했습니다!")
-            print(f"에러 코드: {e.returncode}")
-            print("=== 전체 실행을 중단합니다 ===")
-            break
+            print(f"\n[오류] {script} 실행 중 에러가 발생했습니다! (에러 코드 {e.returncode})")
+            print("=== 이 스크립트만 건너뛰고 계속 진행합니다 ===")
+            continue
 
-    else:
-        print("\n=== 모든 스크립트 실행이 성공적으로 완료되었습니다! ===")
+    print("\n=== 모든 스크립트 실행을 마쳤습니다 ===")
 
 
 if __name__ == "__main__":

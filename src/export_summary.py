@@ -2,7 +2,8 @@ import os
 import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks, savgol_filter
-from data_parser import parse_wafer_data
+from data_parser import load_parsed
+from ref_poly import q_sub
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
@@ -27,14 +28,6 @@ os.makedirs(save_dir_csv, exist_ok=True)
 
 target_wafers = ['D07', 'D08', 'D23', 'D24']
 L_length = 0.05
-
-
-def q_sub(x, y):
-    if len(x) < 3: return x[np.argmin(y)]
-    idx = np.argmin(y)
-    if idx == 0 or idx == len(x) - 1: return x[idx]
-    c = np.polyfit(x[idx - 1:idx + 2], y[idx - 1:idx + 2], 2)
-    return -c[1] / (2 * c[0]) if abs(c[0]) > 1e-12 else x[idx]
 
 
 def check_status(row):
@@ -132,7 +125,7 @@ def apply_excel_style(worksheet, dataframe):
 print("🚀 데이터 분석 및 계산을 시작합니다...")
 data_list = []
 
-for d in parse_wafer_data(zip_path, target_wafers):
+for d in load_parsed(zip_path, target_wafers):
     wafer, band, c, r = d['wafer_id'], d['band'], d['die_c'], d['die_r']
     radius = np.sqrt(c ** 2 + r ** 2)
     date_str = d.get('date', 'Unknown_Date')
@@ -222,7 +215,7 @@ def generate_die_paths(row):
     c = int(row['Column'])
     r = int(row['Row'])
     band = str(row['Band'])
-    base_dir = f"C:\\Users\\sodlg\\PycharmProjects\\PE2\\res\\png\\{wafer}\\{date}"
+    base_dir = f"../res\\png\\{wafer}\\{date}"
     image_name = f"HY202103_{wafer}_({c},{r})_LION1_DCM_{band}.png"
     return f"{base_dir}\\{image_name}"
 
@@ -277,7 +270,7 @@ def generate_map_paths(row):
     wafer = str(row['Wafer'])
     date = str(row['Date'])
     band = str(row['Band'])
-    return f"C:\\Users\\sodlg\\PycharmProjects\\PE2\\res\\png\\WaferMap\\{wafer}\\{date}\\Summary_WaferMap_{wafer}_{band}_{date}.png"
+    return f"../res\\png\\WaferMap\\{wafer}\\{date}\\Summary_WaferMap_{wafer}_{band}_{date}.png"
 
 
 # 🌟 박스 플롯 통합 파일 경로 링크 생성
@@ -285,7 +278,7 @@ def generate_boxplot_paths(row):
     wafer = str(row['Wafer'])
     date = str(row['Date'])
     band = str(row['Band'])
-    return f"C:\\Users\\sodlg\\PycharmProjects\\PE2\\res\\png\\BoxPlot\\{wafer}\\{date}\\Summary_BoxPlot_{wafer}_{band}_{date}.png"
+    return f"../res\\png\\BoxPlot\\{wafer}\\{date}\\Summary_BoxPlot_{wafer}_{band}_{date}.png"
 
 
 # 링크 적용 (이름 변경)
@@ -299,8 +292,8 @@ df_index.drop(columns=['Map_Image_Link', 'BoxPlot_Image_Link'], errors='ignore')
                                                                                           encoding='utf-8-sig')
 print(f"  - 🌟 마스터 CSV 저장 완료: {analysis_csv_path}")
 
-# Analysis.xlsm 저장 (대시보드 형태)
-total_file_path = os.path.join(save_dir_xlsx, "Analysis.xlsm")
+# Analysis.xlsx 저장 (대시보드 형태)
+total_file_path = os.path.join(save_dir_xlsx, "Analysis.xlsx")
 with pd.ExcelWriter(total_file_path, engine='openpyxl') as writer:
     df_index.to_excel(writer, index=False, sheet_name='Dashboard_Links')
     apply_excel_style(writer.sheets['Dashboard_Links'], df_index)
