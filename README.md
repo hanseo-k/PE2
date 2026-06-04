@@ -154,9 +154,8 @@ python run.py
    - Target **Wafer** and **Die** (row & column)
    - Figure options : `Show Figure` / `Save Figure` / `Save CSV`
 4. Results are automatically saved in the `res/` directory
-
-
-
+---
+# 6. Input & Output Examples
 
 ---
 
