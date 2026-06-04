@@ -3,7 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 from concurrent.futures import ProcessPoolExecutor
-from data_parser import parse_wafer_data
+from data_parser import load_parsed
+from analysis_utils import ref_poly
 
 
 # 1. 병렬 코어들이 나누어서 실행할 독립적인 함수 (파일 최상단)
@@ -17,7 +18,7 @@ def _draw_and_save_zoom_only(args):
     if len(v_ref_wl) < 4:
         return None
 
-    poly = np.poly1d(np.polyfit(v_ref_wl, v_ref_il, 3))
+    poly = ref_poly(v_ref_wl, v_ref_il, smooth=False)
     z_min, z_max = d['wl_min'], d['wl_max']
 
     t_bias = next((b for b in d['bias_data_list'] if b['bias'] == -2.0),
@@ -114,7 +115,7 @@ def main():
 
     print("▶ 데이터 파싱을 시작합니다...")
     # 파싱된 데이터를 리스트로 변환하여 메모리에 적재
-    parsed_data_list = list(parse_wafer_data(zip_path, target_wafers))
+    parsed_data_list = load_parsed(zip_path, target_wafers)
     total_items = len(parsed_data_list)
 
     # 각 코어에 넘겨줄 작업 튜플 리스트 생성

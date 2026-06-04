@@ -4,15 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks, savgol_filter
 from concurrent.futures import ProcessPoolExecutor
-from data_parser import parse_wafer_data
-
-
-def q_sub(x, y):
-    if len(x) < 3: return x[np.argmin(y)]
-    idx = np.argmin(y)
-    if idx == 0 or idx == len(x) - 1: return x[idx]
-    c = np.polyfit(x[idx - 1:idx + 2], y[idx - 1:idx + 2], 2)
-    return -c[1] / (2 * c[0]) if abs(c[0]) > 1e-12 else x[idx]
+from data_parser import load_parsed
+from analysis_utils import q_sub, ref_poly
 
 
 def _extract_vpil_data(args):
@@ -27,7 +20,7 @@ def _extract_vpil_data(args):
     if len(v_ref_wl) < 31:
         return None
 
-    poly_func = np.poly1d(np.polyfit(v_ref_wl, savgol_filter(v_ref_il, 31, 3), 3))
+    poly_func = ref_poly(v_ref_wl, v_ref_il, smooth=True)
 
     # 💡 [수정됨] 부동소수점 오차 방지를 위해 == 0.0 대신 절대값 비교 사용
     z_data = next((b for b in d['bias_data_list'] if b['bias'] is not None and abs(b['bias']) < 1e-3), None)
@@ -92,7 +85,7 @@ def main():
 
     print("🚀 분석용 데이터 추출을 시작합니다...")
 
-    parsed_data_list = list(parse_wafer_data(zip_path, target_wafers))
+    parsed_data_list = load_parsed(zip_path, target_wafers)
     tasks = [(d, L_length) for d in parsed_data_list]
     summary_rows = []
 

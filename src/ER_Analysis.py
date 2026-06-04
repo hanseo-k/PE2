@@ -3,7 +3,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
-from data_parser import parse_wafer_data
+from data_parser import load_parsed
+from analysis_utils import ref_poly
 
 zip_path = "../dat/HY202103"
 base_res_dir = "../res/png"
@@ -20,14 +21,14 @@ os.makedirs(box_plot_dir, exist_ok=True)
 er_data_list = []
 count = 0
 
-for d in parse_wafer_data(zip_path, target_wafers):
+for d in load_parsed(zip_path, target_wafers):
     date_str = d.get('date', 'Unknown_Date')
 
     m = (d['ref_data']['wl'] >= d['wl_min']) & (d['ref_data']['wl'] <= d['wl_max'])
     v_ref_wl, v_ref_il = d['ref_data']['wl'][m], d['ref_data']['il'][m]
     if len(v_ref_wl) < 4: continue
 
-    poly_func = np.poly1d(np.polyfit(v_ref_wl, v_ref_il, 3))
+    poly_func = ref_poly(v_ref_wl, v_ref_il, smooth=False)
     max_er = 0.0
 
     for b in d['bias_data_list']:

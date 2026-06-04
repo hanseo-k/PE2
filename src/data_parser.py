@@ -1,4 +1,5 @@
 import os
+import pickle
 import xml.etree.ElementTree as ET
 import numpy as np
 from datetime import datetime
@@ -110,3 +111,50 @@ def parse_wafer_data(data_path, target_wafers):
                     }
             except Exception as e:
                 print(f"[{file_path}] 파싱 에러: {e}")
+
+
+def load_parsed(data_path, target_wafers, cache_path=None):
+    """parse_wafer_data 결과를 pickle 캐시로 1회만 파싱.
+
+    여러 스크립트가 각자 zip을 재파싱하던 것을 캐시 공유로 대체한다.
+    데이터 폴더의 최신 수정시각보다 캐시가 더 최신이고 키(경로+웨이퍼)가
+    같으면 캐시를 그대로 로드, 아니면 다시 파싱 후 캐시를 갱신한다.
+    """
+    if cache_path is None:
+        cache_path = os.path.join(os.path.dirname(data_path.rstrip('/\\')),
+                                  '_parsed_cache.pkl')
+
+    # 캐시 유효성 서명: 경로 + 웨이퍼 + XML 개수 + 최신 수정시각
+    # (개수까지 비교하므로 데이터가 없다가 생긴 경우도 정확히 무효화)
+    n_xml, newest = 0, 0.0
+    for root_dir, _, files in os.walk(data_path):
+        for f in files:
+            if f.lower().endswith('.xml'):
+                n_xml += 1
+                try:
+                    newest = max(newest, os.path.getmtime(os.path.join(root_dir, f)))
+                except OSError:
+                    pass
+    sig = (os.path.abspath(data_path), tuple(sorted(target_wafers)),
+           n_xml, round(newest, 3))
+
+    # 서명이 일치하고 내용이 있는 캐시만 사용
+    if os.path.exists(cache_path):
+        try:
+            with open(cache_path, 'rb') as fh:
+                cached = pickle.load(fh)
+            if cached.get('sig') == sig and cached.get('data'):
+                print(f"  (캐시 사용: {os.path.basename(cache_path)})")
+                return cached['data']
+        except Exception:
+            pass  # 캐시 손상 등 → 재파싱
+
+    # 파싱 후 저장 (빈 결과는 캐시하지 않음 — 데이터 누락 시 poison 방지)
+    data = list(parse_wafer_data(data_path, target_wafers))
+    if data:
+        try:
+            with open(cache_path, 'wb') as fh:
+                pickle.dump({'sig': sig, 'data': data}, fh)
+        except Exception:
+            pass
+    return data

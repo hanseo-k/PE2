@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks, savgol_filter
 from concurrent.futures import ProcessPoolExecutor
-from data_parser import parse_wafer_data
+from data_parser import load_parsed
 
 
 # 1. 각 코어가 독립적으로 가져가서 실행할 메인 작업 함수
@@ -132,7 +132,7 @@ def main():
 
     print("▶ 데이터 파싱을 시작합니다...")
     # 파싱된 데이터를 리스트로 변환하여 메모리에 적재
-    parsed_data_list = list(parse_wafer_data(zip_path, target_wafers))
+    parsed_data_list = load_parsed(zip_path, target_wafers)
     total_items = len(parsed_data_list)
 
     # 각 코어에 넘겨줄 작업 튜플 리스트 생성
