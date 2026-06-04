@@ -225,5 +225,3 @@ sequentially to process the data.
     enabling intuitive one-click data verification.
 ---
 # ⚠️ Precautions
-
-무슨
