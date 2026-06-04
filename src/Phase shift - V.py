@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.signal import find_peaks, savgol_filter
 from concurrent.futures import ProcessPoolExecutor
 from data_parser import load_parsed
-from analysis_utils import ref_poly
+from ref_poly import ref_poly
 
 # ── 설정 ──────────────────────────────────────────────────────────────
 BROKEN_SLOPE_PM = 10.0     # |dλ/dV| 이 값(pm/V) 미만이면 '망가진 측정'으로 표시

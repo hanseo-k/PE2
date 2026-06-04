@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks, savgol_filter
 from data_parser import load_parsed
-from analysis_utils import q_sub
+from ref_poly import q_sub
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
@@ -215,7 +215,7 @@ def generate_die_paths(row):
     c = int(row['Column'])
     r = int(row['Row'])
     band = str(row['Band'])
-    base_dir = f"C:\\Users\\sodlg\\PycharmProjects\\PE2\\res\\png\\{wafer}\\{date}"
+    base_dir = f"../res\\png\\{wafer}\\{date}"
     image_name = f"HY202103_{wafer}_({c},{r})_LION1_DCM_{band}.png"
     return f"{base_dir}\\{image_name}"
 
@@ -270,7 +270,7 @@ def generate_map_paths(row):
     wafer = str(row['Wafer'])
     date = str(row['Date'])
     band = str(row['Band'])
-    return f"C:\\Users\\sodlg\\PycharmProjects\\PE2\\res\\png\\WaferMap\\{wafer}\\{date}\\Summary_WaferMap_{wafer}_{band}_{date}.png"
+    return f"../res\\png\\WaferMap\\{wafer}\\{date}\\Summary_WaferMap_{wafer}_{band}_{date}.png"
 
 
 # 🌟 박스 플롯 통합 파일 경로 링크 생성
@@ -278,7 +278,7 @@ def generate_boxplot_paths(row):
     wafer = str(row['Wafer'])
     date = str(row['Date'])
     band = str(row['Band'])
-    return f"C:\\Users\\sodlg\\PycharmProjects\\PE2\\res\\png\\BoxPlot\\{wafer}\\{date}\\Summary_BoxPlot_{wafer}_{band}_{date}.png"
+    return f"../res\\png\\BoxPlot\\{wafer}\\{date}\\Summary_BoxPlot_{wafer}_{band}_{date}.png"
 
 
 # 링크 적용 (이름 변경)
@@ -292,8 +292,8 @@ df_index.drop(columns=['Map_Image_Link', 'BoxPlot_Image_Link'], errors='ignore')
                                                                                           encoding='utf-8-sig')
 print(f"  - 🌟 마스터 CSV 저장 완료: {analysis_csv_path}")
 
-# Analysis.xlsm 저장 (대시보드 형태)
-total_file_path = os.path.join(save_dir_xlsx, "Analysis.xlsm")
+# Analysis.xlsx 저장 (대시보드 형태)
+total_file_path = os.path.join(save_dir_xlsx, "Analysis.xlsx")
 with pd.ExcelWriter(total_file_path, engine='openpyxl') as writer:
     df_index.to_excel(writer, index=False, sheet_name='Dashboard_Links')
     apply_excel_style(writer.sheets['Dashboard_Links'], df_index)

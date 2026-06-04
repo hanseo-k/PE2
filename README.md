@@ -67,6 +67,7 @@ processed outputs, and source logic clearly
 │   └── 📄 data                     # Raw wafer XML compressed data (ex: HY202103.zip)
 │
 ├── 📁 src/                         # Core analysis module directory
+│   ├── 📄 ref_poly.py 
 │   ├── 📄 data_parser.py           
 │   ├── 📄 plot.py                  
 │   ├── 📄 flatting.py              
@@ -106,6 +107,8 @@ processed outputs, and source logic clearly
 `run.py` 실행 시 내부적으로 총 9개의 핵심 모듈이 순차적으로 동작하며 데이터를 가공합니다. 
 
 ### 1. 데이터 추출 및 시각화 준비
+* **`ref_poly.py` (데이터 분석용 공통함수)**
+  *  REF의 노이즈 제거 및 기준선 잡기
 * **`data_parser.py` (데이터 파싱)**
   * 원본 XML 데이터 파일에서 분석에 필요한 타겟 밴드(LMZC, LMZO) 스펙트럼 데이터를 불러옵니다.
 * **`plot.py` (원시 데이터 플롯)**

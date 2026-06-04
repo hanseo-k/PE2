@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.signal import find_peaks, savgol_filter
 from concurrent.futures import ProcessPoolExecutor
 from data_parser import load_parsed
-from analysis_utils import q_sub, ref_poly
+from ref_poly import q_sub, ref_poly
 
 
 # ==========================================================

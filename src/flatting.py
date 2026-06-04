@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 from concurrent.futures import ProcessPoolExecutor
 from data_parser import load_parsed
-from analysis_utils import ref_poly
+from ref_poly import ref_poly
 
 
 # 1. 병렬 코어들이 나누어서 실행할 독립적인 함수 (파일 최상단)

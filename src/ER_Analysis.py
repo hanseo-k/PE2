@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 from data_parser import load_parsed
-from analysis_utils import ref_poly
+from ref_poly import ref_poly
 
 zip_path = "../dat/HY202103"
 base_res_dir = "../res/png"
