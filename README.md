@@ -38,7 +38,8 @@ Our goal is to build a system that automatically analyzes optical characteristic
 
 ```bash
 pip install numpy matplotlib scipy pandas
-
+```
+---
 # 2. Project information
 ### 📖 About This Project
 
