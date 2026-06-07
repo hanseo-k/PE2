@@ -33,6 +33,10 @@ Our goal is to build a system that automatically analyzes optical characteristic
 ### Installation
 
 ```bash
+pip install numpy matplotlib scipy pandas
+```
+
+```bash
 pip install -r requirements.txt
 ```
 
@@ -154,29 +158,7 @@ processed outputs, and source logic clearly
             └── 📁 {Date_YYYYMMDD}/     # Per-measurement-date folders 
                 └── 📄 HY202103_{Wafer}_({C},{R})_LION1_DCM_{Band}.png  # Merged summary images
 ```
----
-# 5. Install and Run
 
-### Installation
-
-```bash
-pip install -r requirements.txt
-```
-
-### How to Run
-
-1. Place the raw XML data folder you want to analyze into the `dat/` directory
-2. Execute the pipeline
-
-```bash
-python run.py
-```
-
-3. Select analysis options
-   - Target **Wafer** and **Die** (row & column)
-   - Figure options : `Show Figure` / `Save Figure` / `Save CSV`
-4. Results are automatically saved in the `res/` directory
----
 # 6. Input & Output Examples
 
 여기에 그래프와 csv 사진 첨부
