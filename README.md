@@ -6,9 +6,9 @@
 ---
 # 📝Contents
 1. Introduction
-2. Project information
-3. Directory Structure
-4. Install and Run
+2. Install and Run
+3. Project information
+4. Directory Structure
 ---
 > **This is an automated system that parses XML-based wafer measurement data and performs precise analysis of IL, ER, VpiL, and Phase Shift to generate visualizations and integrated Excel reports.**
 
@@ -28,19 +28,29 @@ Our goal is to build a system that automatically analyzes optical characteristic
 | Lee HyoSeong  | 0000@hanyang.ac.kr |
 |  Kim HanSeo   | 0000@hanyang.ac.kr |
 ---
-## ⚠️ Precautions & Installation
+# 2. Install and Run
 
-### 📋 Prerequisites
-이 프로젝트를 실행하기 전에 아래의 필수 라이브러리들이 설치되어 있어야 합니다.
-
-### 🛠️ Installation
-터미널(Terminal) 또는 명령 프롬프트(CMD)를 열고 아래 명령어를 입력하여 필요한 패키지를 한 번에 설치하세요.
+### Installation
 
 ```bash
-pip install numpy matplotlib scipy pandas
+pip install -r requirements.txt
 ```
+
+### How to Run
+
+1. Place the raw XML data folder you want to analyze into the `dat/` directory
+2. Execute the pipeline
+
+```bash
+python run.py
+```
+
+3. Select analysis options
+   - Target **Wafer** and **Die** (row & column)
+   - Figure options : `Show Figure` / `Save Figure` / `Save CSV`
+4. Results are automatically saved in the `res/` directory
 ---
-# 2. Project information
+# 3. Project information
 ### 📖 About This Project
 
 Our goal is to build a system that automatically analyzes
@@ -64,7 +74,7 @@ the final results without manual intervention.
 2. Process raw XML data through a series of analysis modules
 3. Export the final results as `.csv` and `.xlsx` reports
 ---
-# 3. ⚙️ Key Features
+# 4. ⚙️ Key Features
 
 
 ### 1) Data Extraction & Visualization Preparation
@@ -99,7 +109,7 @@ the final results without manual intervention.
 - **`combine_plot.py`** — Merges individual analysis graphs into a single summary dashboard image per wafer and measurement date
 - **`export_summary.py`** — Exports final IL / ER / VπL data as `.csv` and `.xlsx` files, with hyperlinks in Excel mapped to merged summary images for intuitive one-click data verification
 ------
-# 4. 📁 Directory Structure
+# 5. 📁 Directory Structure
 
 The project is structured to separate raw inputs, 
 processed outputs, and source logic clearly
