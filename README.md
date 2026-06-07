@@ -28,6 +28,16 @@ Our goal is to build a system that automatically analyzes optical characteristic
 | Lee HyoSeong  | 0000@hanyang.ac.kr |
 |  Kim HanSeo   | 0000@hanyang.ac.kr |
 ---
+## ⚠️ Precautions & Installation
+
+### 📋 Prerequisites
+이 프로젝트를 실행하기 전에 아래의 필수 라이브러리들이 설치되어 있어야 합니다.
+
+### 🛠️ Installation
+터미널(Terminal) 또는 명령 프롬프트(CMD)를 열고 아래 명령어를 입력하여 필요한 패키지를 한 번에 설치하세요.
+
+```bash
+pip install numpy matplotlib scipy pandas
 # 2. Project information
 ### 📖 About This Project
 
@@ -249,5 +259,3 @@ sequentially to process the data.
     `.csv` and `.xlsx` files. The Excel file includes 
     hyperlinks mapped to merged summary images (PNG), 
     enabling intuitive one-click data verification.
----
-# ⚠️ Precautions
