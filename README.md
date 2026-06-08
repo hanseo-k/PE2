@@ -240,6 +240,9 @@ sequentially to process the data.
 
 <img width="790" height="790" alt="Box_D07_LMZC_20190715_VpiL_0V" src="https://github.com/user-attachments/assets/1481388c-0f16-419b-8881-049a174d9c78" />
 
+
+### Jupyter Notebook
+
 ### 5. Visualization Merging & Report Auto-Generation
 
 - **`combine_plot.py`** (Dashboard Image Merging)
