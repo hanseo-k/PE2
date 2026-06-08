@@ -161,7 +161,8 @@ processed outputs, and source logic clearly
 
 # 6. Input & Output Examples
 
-여기에 그래프와 csv 사진 첨부
+<img width="942" height="692" alt="image" src="https://github.com/user-attachments/assets/9519cb5c-545f-415a-a882-83a93bc99b20" />
+
 ---
 
 # 7. ⚙️ Data Analysis Pipeline
