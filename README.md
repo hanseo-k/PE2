@@ -1,8 +1,11 @@
 # 📂 Wafer Data Analysis & Integrated Reporting System
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python&logoColor=white)
+![NumPy](https://img.shields.io/badge/NumPy-Data%20Computation-013243?logo=numpy&logoColor=white)
 ![Pandas](https://img.shields.io/badge/Pandas-Data%20Analysis-150458?logo=pandas&logoColor=white)
-![Matplotlib](https://img.shields.io/badge/Matplotlib-Visualization-black?logo=python)
+![SciPy](https://img.shields.io/badge/SciPy-Advanced%20Math-8CAAE6?logo=scipy&logoColor=white)
+![Matplotlib](https://img.shields.io/badge/Matplotlib-Visualization-11557c?logo=python&logoColor=white)
+![Jupyter/iPyWidgets](https://img.shields.io/badge/iPyWidgets-Interactive-F37626?logo=jupyter&logoColor=white)
 ---
 # 📝Contents
 1. Introduction
@@ -18,6 +21,26 @@ This project is an end-to-end pipeline that automatically analyzes wafer-level t
 # 1. Introduction
 -PE2: WOP project
 
+### 📝 README에 넣을 코드:
+
+```markdown
+[Raw Data (CSV/DB)] 
+        │
+        ▼ (Data Loading & Cleaning)
+ ┌──────────────────────────────┐
+ │  Pandas & NumPy Pipeline     │ ◀─── 가공 및 유효성 검사
+ └──────────────────────────────┘
+        │
+        ▼ (Statistical Analysis)
+ ┌──────────────────────────────┐
+ │  SciPy Engine                │ ◀─── 통계 모델링 및 분석
+ └──────────────────────────────┘
+        │
+        ▼ (Output Layer)
+ ┌──────────────────────────────┐
+ │  Matplotlib / ipywidgets     │ ◀─── 고객향 인터랙티브 UI 제공
+ └──────────────────────────────┘
+```
 Our goal is to build a system that automatically analyzes optical characteristics using Python and XML data.
 ## 👥 Contributors
 
