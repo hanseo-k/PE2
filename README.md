@@ -14,6 +14,7 @@
 3. Project information
 4. Directory Structure
 5. Data Analysis Pipeline
+6. Jupyter Notebook
 ---
 # 1. Introduction
 -PE2: team2 project
