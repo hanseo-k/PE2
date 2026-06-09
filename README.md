@@ -12,15 +12,11 @@
 2. Install and Run
 3. Project information
 4. Directory Structure
----
-> **This is an automated system that parses XML-based wafer measurement data and performs precise analysis of IL, ER, VpiL, and Phase Shift to generate visualizations and integrated Excel reports.**
-
-This project is an end-to-end pipeline that automatically analyzes wafer-level test data from optical devices such as Mach-Zehnder Modulators and outputs the results as a dashboard-style report for at-a-glance visualization.
 
 ---
 # 1. Introduction
--PE2: WOP project
-Our goal is to build a system that automatically analyzes optical characteristics using Python and XML data.
+-PE2: team2 project
+
 
 ```markdown
 ```text
@@ -28,17 +24,17 @@ Our goal is to build a system that automatically analyzes optical characteristic
         │
         ▼ 
  ┌──────────────────────────────────────────┐
- │  Data Extraction & Preprocessing         │
+ │  Data Extraction & Preprocessing         │ ───▶ CSV, Xlsx, Png
  └──────────────────────────────────────────┘
         │
         ▼ 
  ┌──────────────────────────────────────────┐
- │  Statistical Analysis & Yield Modeling   │
+ │  Statistical Analysis & Yield Modeling   │ ───▶ Wafer Map, Box graph
  └──────────────────────────────────────────┘
         │
         ▼ 
  ┌──────────────────────────────────────────┐
- │  Die-Level Interactive Analysis          │ ◀─── Jupyter Notebook
+ │  Die-Level Interactive Analysis          │ ───▶ Jupyter Notebook
  └──────────────────────────────────────────┘
 ```
 ---
@@ -171,7 +167,7 @@ processed outputs, and source logic clearly
     │   └── 📄 {Wafer_ID}_Process_result.csv 
     │
     ├── 📁 xlsx/                    # Collection of consolidated Excel reports with hyperlinks
-    │   ├── 📄 Analysis.xlsm            
+    │   ├── 📄 Analysis.xlsx            
     │   ├── 📄 Total_Process_result.xlsx 
     │   └── 📄 {Wafer_ID}_Process_result.xlsx 
     │
