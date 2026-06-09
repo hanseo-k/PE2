@@ -33,7 +33,7 @@ Our goal is to build a system that automatically analyzes optical characteristic
 ### Installation
 
 ```bash
-pip install numpy matplotlib scipy pandas
+pip install numpy matplotlib scipy pandas ipywidgets
 ```
 
 ```bash
