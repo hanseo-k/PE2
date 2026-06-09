@@ -257,3 +257,5 @@ sequentially to process the data.
     enabling intuitive one-click data verification.
 
 ### 6. Jupyter Notebook
+
+- **`wafer_analyzer.py`** (Die-Level Data Analysis)
