@@ -12,7 +12,7 @@
 2. Install and Run
 3. Project information
 4. Directory Structure
-
+5. Data Analysis Pipeline
 ---
 # 1. Introduction
 -PE2: team2 project
@@ -119,7 +119,7 @@ python run.py
 - **`combine_plot.py`** — Merges individual analysis graphs into a single summary dashboard image per wafer and measurement date
 - **`export_summary.py`** — Exports final IL / ER / VπL data as `.csv` and `.xlsx` files, with hyperlinks in Excel mapped to merged summary images for intuitive one-click data verification
 ------
-# 5. 📁 Directory Structure
+# 4. 📁 Directory Structure
 
 The project is structured to separate raw inputs, 
 processed outputs, and source logic clearly
@@ -164,21 +164,15 @@ processed outputs, and source logic clearly
             └── 📁 {Date_YYYYMMDD}/     # Per-measurement-date folders 
                 └── 📄 HY202103_{Wafer}_({C},{R})_LION1_DCM_{Band}.png  # Merged summary images
 ```
-
-# 6. Input & Output Examples
-
-<img width="942" height="692" alt="image" src="https://github.com/user-attachments/assets/9519cb5c-545f-415a-a882-83a93bc99b20" />
-
 ---
-
-# 7. ⚙️ Data Analysis Pipeline
+# 5. ⚙️ Data Analysis Pipeline
 
 When `run.py` is executed, a total of 9 core modules operate 
 sequentially to process the data.
 
 ### 1. Data Extraction & Visualization Preparation
 
-- **`ref_poly.py`**
+- **`ref_poly.py`** (Remove Ref)
 - **`data_parser.py`** (Data Parsing)
   - Loads target band (LMZC, LMZO) spectrum data required 
     for analysis from the raw XML data files.
@@ -246,9 +240,6 @@ sequentially to process the data.
 
 <img width="790" height="790" alt="Box_D07_LMZC_20190715_VpiL_0V" src="https://github.com/user-attachments/assets/1481388c-0f16-419b-8881-049a174d9c78" />
 
-
-# Jupyter Notebook
-
 ### 5. Visualization Merging & Report Auto-Generation
 
 - **`combine_plot.py`** (Dashboard Image Merging)
@@ -264,3 +255,5 @@ sequentially to process the data.
     `.csv` and `.xlsx` files. The Excel file includes 
     hyperlinks mapped to merged summary images (PNG), 
     enabling intuitive one-click data verification.
+
+### 6. Jupyter Notebook
