@@ -54,12 +54,12 @@
 
 ## 👥 Contributors
 
-|     Name      |       E-mail       | 
-|:-------------:|:------------------:|
-|  Lee Hangyol  | 0000@hanyang.ac.kr |
-| Jeong Jae-min | 0000@hanyang.ac.kr |
-| Lee HyoSeong  | 0000@hanyang.ac.kr |
-|  Kim HanSeo   | 0000@hanyang.ac.kr |
+|     Name     |         E-mail          | 
+|:------------:|:-----------------------:|
+| Lee Hangyol  |   0000@hanyang.ac.kr    |
+| Jung Jae min | jjmin0118@hanyang.ac.kr |
+| Lee HyoSeong |   0000@hanyang.ac.kr    |
+|  Kim HanSeo  |   0000@hanyang.ac.kr    |
 ---
 # 2. Install and Run
 
