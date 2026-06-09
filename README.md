@@ -143,7 +143,8 @@ processed outputs, and source logic clearly
 │   ├── 📄 ER_Analysis.py           
 │   ├── 📄 IL_Analysis.py           
 │   ├── 📄 VpiL_Analysis.py         
-│   ├── 📄 combine_plot.py          
+│   ├── 📄 combine_plot.py
+│   ├── 📄 wafer_analyzer.py          
 │   └── 📄 export_summary.py        
 │
 └── 📁 res/                         # Output directory automatically generated at runtime
