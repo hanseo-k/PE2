@@ -17,6 +17,19 @@
 # 1. Introduction
 -PE2: team2 project
 
+- We have automated a 3-stage pipeline, encompassing everything from raw data processing to visualization and analysis.
+
+### 1️⃣ Data Extraction & Preprocessing
+* **Execution**: The system automatically searches for and loads raw `XML` data files, followed by a preprocessing stage to cleanse missing values (nulls) and data anomalies.
+* **Deliverables**: The cleansed data is stored in `CSV` and `Xlsx` formats for seamless subsequent analysis and archiving, and initial `Png` plots are automatically generated for primary data validation.
+
+### 2️⃣ Statistical Analysis
+* **Execution**: Conducts large-scale statistical analysis and models the overall wafer lot yield based on the preprocessed structured data.
+* **Deliverables**: Automatically renders and reports **Box plots (Box graphs)** to grasp data distribution and outliers at a glance, along with **Wafer Maps** that visualize defect locations and spatial uniformity across the wafer.
+
+### 3️⃣ Die-Level Interactive Analysis
+* **Execution**: Moves beyond static reporting to provide a customized analytical environment where clients can track specific die-level sensor data in-depth.
+* **Deliverables**: Delivers a **Jupyter Notebook-based interactive dashboard UI** that enables real-time user-driven data filtering.
 
 ```markdown
 ```text
@@ -29,7 +42,7 @@
         │
         ▼ 
  ┌──────────────────────────────────────────┐
- │  Statistical Analysis & Yield Modeling   │ ───▶ Wafer Map, Box graph
+ │  Statistical Analysis                    │ ───▶ Wafer Map, Box graph
  └──────────────────────────────────────────┘
         │
         ▼ 
