@@ -73,7 +73,7 @@ pip install numpy matplotlib scipy pandas ipywidgets
 pip install -r requirements.txt
 ```
 
-### How to Run
+### ▶️ How to Run
 
 1. Place the raw XML data folder you want to analyze into the `dat/` directory
 2. Execute the pipeline
@@ -82,37 +82,10 @@ pip install -r requirements.txt
 python run.py
 ```
 
-3. Select analysis options
-   - Target **Wafer** and **Die** (row & column)
-   - Figure options : `Show Figure` / `Save Figure` / `Save CSV`
-4. Results are automatically saved in the `res/` directory
+3. Results are automatically saved in the `res/` directory
 ---
 # 3. Project information
 ### 📖 About This Project
-
-Our goal is to build a system that automatically analyzes
-optical characteristics using Python and XML data.
-
-The system receives raw wafer data from the customer along
-with specific analysis requests, including:
-
-- Target Wafer
-- Die Row & Column
-- Analysis Options
-
-Based on these inputs, the pipeline acts as a **black box** —
-automatically processing the requested data and delivering
-the final results without manual intervention.
-
-
-### ▶️ How It Works
-
-1. Extract files named `HY202103` from the customer-provided dataset
-2. Process raw XML data through a series of analysis modules
-3. Export the final results as `.csv` and `.xlsx` reports
----
-# 4. ⚙️ Key Features
-
 
 ### 1) Data Extraction & Visualization Preparation
 
