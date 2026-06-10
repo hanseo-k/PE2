@@ -585,6 +585,46 @@ def plot_box(data, length_map, wafer, date, band, metric='vpil', selected_c=None
     fig.tight_layout()
     _show_fig(fig)
 
+
+from IPython.display import display
+
+
+def display_die_table(data, length_map, wafer, date, band, c, r, show_raw=False):
+    # 선택한 다이 1개의 지표 및 Raw 데이터를 화면에 표(DataFrame)로 출력
+    d = get_die(data, wafer, date, band, c, r)
+    if d is None:
+        print(f"❌ 유효한 데이터가 없습니다: {wafer} / {band} / ({c}, {r})")
+        return
+
+    # 1. 요약 지표(Summary) 추출
+    vpil_val = metric_value(d, 'vpil', length_map)
+    il_val = metric_value(d, 'il', length_map)
+    er_val = metric_value(d, 'er', length_map)
+
+    df_summary = pd.DataFrame([{
+        'Wafer': wafer, 'Date': date, 'Band': band,
+        'Column': c, 'Row': r,
+        'ER (dB)': er_val, 'IL (dB)': il_val, 'VpiL (V*cm)': vpil_val
+    }])
+
+    print(f"🎯 [요약 지표] {wafer} / {band} / Coord: ({c}, {r})")
+    display(df_summary)
+
+    # 2. Raw 스펙트럼 추출 및 출력 (show_raw 옵션이 True일 때만)
+    if show_raw:
+        raw_rows = []
+        for b in d['bias_data_list']:
+            if b['bias'] is None: continue
+            m = (b['wl'] >= d['wl_min']) & (b['wl'] <= d['wl_max'])
+            for w, i in zip(b['wl'][m], b['il'][m]):
+                raw_rows.append({'Bias (V)': b['bias'], 'Wavelength (nm)': w, 'IL (dB)': i})
+
+        if raw_rows:
+            df_raw = pd.DataFrame(raw_rows)
+            print(f"\n📈 [원본 스펙트럼 데이터] 총 {len(df_raw)}행 (상위 10개만 표시)")
+            # 전체를 다 띄우면 스크롤이 너무 길어지므로 .head(10)으로 상단만 보여줍니다.
+            display(df_raw.head(10))
+
 def interactive(data, length_map=None, metric='vpil'):
     # 드롭다운으로 다이를 골라 그 다이의 그래프를 화면에 띄운다 (노트북 전용).
     # metric: 'vpil' 이면 VpiL 곡선, 'phase' 면 위상(라디안) 곡선.
