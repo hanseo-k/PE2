@@ -264,6 +264,10 @@ sequentially to process the data.
     hyperlinks mapped to merged summary images (PNG), 
     enabling intuitive one-click data verification.
 
+<img width="1122" height="307" alt="image" src="https://github.com/user-attachments/assets/c0a1a98c-fcf3-42f5-8ae2-bfa8dcac8c6a" />
+
+<img width="1807" height="290" alt="image" src="https://github.com/user-attachments/assets/fef3c999-d39f-46d5-b748-cfd04a0c5e71" />
+
 # 6. Jupyter Notebook
 
 - **`wafer_analyzer.py`** (Die-Level Data Analysis)
