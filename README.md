@@ -263,9 +263,10 @@ sequentially to process the data.
     `.csv` and `.xlsx` files. The Excel file includes 
     hyperlinks mapped to merged summary images (PNG), 
     enabling intuitive one-click data verification.
-
+### CSV
 <img width="1122" height="307" alt="image" src="https://github.com/user-attachments/assets/c0a1a98c-fcf3-42f5-8ae2-bfa8dcac8c6a" />
 
+### Xlsx
 <img width="1807" height="290" alt="image" src="https://github.com/user-attachments/assets/fef3c999-d39f-46d5-b748-cfd04a0c5e71" />
 
 # 6. Jupyter Notebook
