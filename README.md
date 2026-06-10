@@ -260,6 +260,6 @@ sequentially to process the data.
     hyperlinks mapped to merged summary images (PNG), 
     enabling intuitive one-click data verification.
 
-### 6. Jupyter Notebook
+# 6. Jupyter Notebook
 
 - **`wafer_analyzer.py`** (Die-Level Data Analysis)
