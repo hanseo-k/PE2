@@ -120,6 +120,10 @@ python run.py
 
 - **`combine_plot.py`** — Merges individual analysis graphs into a single summary dashboard image per wafer and measurement date
 - **`export_summary.py`** — Exports final IL / ER / VπL data as `.csv` and `.xlsx` files, with hyperlinks in Excel mapped to merged summary images for intuitive one-click data verification
+
+### 6) Jupyter Notebook
+- **`wafer_analysis`** — The purpose is to visually extract the necessary data at the die level.
+
 ------
 # 4. 📁 Directory Structure
 
