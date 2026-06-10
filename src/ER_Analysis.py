@@ -198,7 +198,7 @@ for (w, b, date), wbd_df in filtered_df.groupby(['Wafer', 'Band', 'Date']):
     # 타겟(20.0) 이상: 연한 초록색 (Good)
     plt.axhspan(20.0, y_max, facecolor='#e8f8f5', alpha=0.6, zorder=0, label='Good Region')
 
-    # 타겟(20.0) 미만: 연한 붉은/코랄 계열 (Poor) - 눈에 띄면서 부정적인 의미 전달
+    # 타겟(20.0) 미만: 연한 붉은/코랄 계열 (Poor) - 부정적인 의미
     plt.axhspan(y_min, 20.0, facecolor='#fadbd8', alpha=0.6, zorder=0, label='Poor Region')
     # ------------------------------------------------------
 
