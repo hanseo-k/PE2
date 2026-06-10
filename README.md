@@ -10,7 +10,7 @@
 ---
 # 📝Contents
 1. Introduction
-2. Install and Run
+2. Quick Run
 3. Project information
 4. Directory Structure
 5. Data Analysis Pipeline
