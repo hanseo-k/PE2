@@ -26,7 +26,7 @@
 * **Deliverables**: The cleansed data is stored in `CSV` and `Xlsx` formats for seamless subsequent analysis and archiving, and initial `Png` plots are automatically generated for primary data validation.
 
 ### 2️⃣ Statistical Analysis
-* **Execution**: Conducts large-scale statistical analysis and models the overall wafer lot yield based on the preprocessed structured data.
+* **Execution**: Conducts large-scale statistical analysis based on the preprocessed structured data.
 * **Deliverables**: Automatically renders and reports **Box plots (Box graphs)** to grasp data distribution and outliers at a glance, along with **Wafer Maps** that visualize defect locations and spatial uniformity across the wafer.
 
 ### 3️⃣ Die-Level Interactive Analysis
