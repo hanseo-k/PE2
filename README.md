@@ -63,7 +63,7 @@
 | Lee HyoSeong |   0000@hanyang.ac.kr    |
 |  Kim HanSeo  |   0000@hanyang.ac.kr    |
 ---
-# 2. Install and Run
+# 2. Quick Run
 
 ### Installation
 
